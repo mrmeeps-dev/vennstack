@@ -1,0 +1,80 @@
+{
+  "id": "2025-11-23",
+  "rules": {
+    "left": "Mammals",
+    "right": "Egg Layers"
+  },
+  "items": [
+    {
+      "id": "1",
+      "text": "Platypus",
+      "emoji": "🦆",
+      "zone": "both",
+      "explanation": "Monotreme mammal that lays eggs."
+    },
+    {
+      "id": "2",
+      "text": "Rock",
+      "emoji": "🪨",
+      "zone": "outside",
+      "explanation": "Abiotic, not a living organism."
+    },
+    {
+      "id": "3",
+      "text": "Echidna",
+      "emoji": "🦔",
+      "zone": "both",
+      "explanation": "Monotreme mammal that lays eggs."
+    },
+    {
+      "id": "4",
+      "text": "Dog",
+      "emoji": "🐕",
+      "zone": "left",
+      "explanation": "Mammal that does not lay eggs."
+    },
+    {
+      "id": "5",
+      "text": "Chicken",
+      "emoji": "🐔",
+      "zone": "right",
+      "explanation": "Lays eggs but is not a mammal."
+    },
+    {
+      "id": "6",
+      "text": "Cat",
+      "emoji": "🐈",
+      "zone": "left",
+      "explanation": "Mammal that does not lay eggs."
+    },
+    {
+      "id": "7",
+      "text": "Duck",
+      "emoji": "🦆",
+      "zone": "right",
+      "explanation": "Lays eggs but is not a mammal."
+    },
+    {
+      "id": "8",
+      "text": "Human",
+      "emoji": "👤",
+      "zone": "left",
+      "explanation": "Mammal that does not lay eggs."
+    },
+    {
+      "id": "9",
+      "text": "Snake",
+      "emoji": "🐍",
+      "zone": "right",
+      "explanation": "Lays eggs but is not a mammal."
+    },
+    {
+      "id": "10",
+      "text": "Tree",
+      "emoji": "🌳",
+      "zone": "outside",
+      "explanation": "Plant, not an animal."
+    }
+  ]
+}
+
