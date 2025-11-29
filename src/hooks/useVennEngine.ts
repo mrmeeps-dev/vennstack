@@ -310,6 +310,27 @@ export function useVennEngine(
     setIsMirrored(false);
   }, [puzzleData]);
 
+  // Debug function: Place all items without locking them (for testing)
+  const autoPlaceAllItemsUnlocked = useCallback(() => {
+    const placements = new Map<string, Zone>();
+    const orders = new Map<Zone, string[]>([
+      ['left', []], ['right', []], ['both', []], ['outside', []]
+    ]);
+
+    // Place all items in their correct zones (natural zones from puzzle definition)
+    puzzleData.items.forEach(item => {
+      placements.set(item.id, item.zone);
+      orders.get(item.zone)!.push(item.id);
+    });
+
+    setItemPlacements(placements);
+    setZoneOrder(orders);
+    // Don't lock items - just place them
+    // Don't reveal rules
+    // Reset mirrored state since we're placing everything correctly
+    setIsMirrored(false);
+  }, [puzzleData]);
+
   const handleDrop = useCallback((event: any, mousePosition?: { x: number; y: number } | null) => {
     const { active, over } = event;
     
@@ -439,6 +460,7 @@ export function useVennEngine(
     removeItem,
     validatePuzzle,
     autoPlaceAllItems,
+    autoPlaceAllItemsUnlocked,
     handleDrop,
     revealOneHint
   };

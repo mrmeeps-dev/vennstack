@@ -43,6 +43,7 @@ export interface GameActions {
   removeItem: (itemId: string) => void;
   validatePuzzle: () => { correct: string[]; incorrect: string[]; isMirrored: boolean };
   autoPlaceAllItems: () => void;
+  autoPlaceAllItemsUnlocked?: () => void; // Debug function: place items without locking
   handleDrop: (event: any, mousePosition?: { x: number; y: number } | null) => void;
   revealOneHint?: () => string | null;
 }

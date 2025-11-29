@@ -426,14 +426,10 @@ function App() {
 
         debugKeyPressCount.current += 1;
 
-        // If 5 presses within 2 seconds, auto-solve
+        // If 5 presses within 2 seconds, auto-place (without locking)
         if (debugKeyPressCount.current >= 5) {
-          if (game.autoPlaceAllItems && !isPuzzleComplete && !isGameOver) {
-            game.autoPlaceAllItems();
-            const allItemIds = new Set(puzzleData.items.map(item => item.id));
-            setJustLockedIds(allItemIds);
-            setTimeout(() => setJustLockedIds(new Set()), 450);
-            playHintSound();
+          if (game.autoPlaceAllItemsUnlocked && !isPuzzleComplete && !isGameOver) {
+            game.autoPlaceAllItemsUnlocked();
           }
           debugKeyPressCount.current = 0;
         } else {
@@ -463,14 +459,10 @@ function App() {
 
     debugHintTapCount.current += 1;
 
-    // If 5 taps within 2 seconds, auto-solve
+    // If 5 taps within 2 seconds, auto-place (without locking)
     if (debugHintTapCount.current >= 5) {
-      if (game.autoPlaceAllItems && !isPuzzleComplete && !isGameOver) {
-        game.autoPlaceAllItems();
-        const allItemIds = new Set(puzzleData.items.map(item => item.id));
-        setJustLockedIds(allItemIds);
-        setTimeout(() => setJustLockedIds(new Set()), 450);
-        playHintSound();
+      if (game.autoPlaceAllItemsUnlocked && !isPuzzleComplete && !isGameOver) {
+        game.autoPlaceAllItemsUnlocked();
       }
       debugHintTapCount.current = 0;
     } else {
