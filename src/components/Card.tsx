@@ -33,7 +33,7 @@ export function Card({
   // (incorrect cards should be draggable so users can move them to try different categories)
   const isDraggable = !isGameLocked && (state === 'unlocked' || state === 'incorrect');
 
-  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+  const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: item.id,
     data: {
       type: 'card',
