@@ -16,6 +16,8 @@ import { Confetti } from './components/Confetti';
 import { DndProvider } from './components/DndProvider';
 import { useVennEngine } from './hooks/useVennEngine';
 import { useStats } from './hooks/useStats';
+import { useVersionCheck } from './hooks/useVersionCheck';
+import { UpdateToast } from './components/UpdateToast';
 import samplePuzzle from './data/samplePuzzle.json';
 import { PuzzleData } from './types/game';
 import { playSuccessSound, playHintSound } from './utils/audio';
@@ -27,6 +29,7 @@ function App() {
   const [earliestPuzzleDate, setEarliestPuzzleDate] = useState<string | null>(null);
   const stats = useStats();
   const { recordPuzzleStart, recordPuzzleCompletion, recordAttempt, isPuzzleCompleted: checkIsPuzzleCompleted, getPuzzleLockedState } = stats;
+  const { updateAvailable, sendSkipWaiting } = useVersionCheck();
   
   // Check if current puzzle is completed and get locked state
   // Use useMemo to recalculate when puzzleData.id or the completion check function changes
@@ -1239,6 +1242,14 @@ function App() {
         </div>
         </DndProvider>
       )}
+
+      {/* Update Toast */}
+      <UpdateToast
+        isOpen={updateAvailable}
+        onRefresh={() => {
+          sendSkipWaiting();
+        }}
+      />
     </>
   );
 }

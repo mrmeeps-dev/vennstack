@@ -1,0 +1,19 @@
+{
+  "name": "VennStack",
+  "short_name": "VennStack",
+  "description": "Daily Venn diagram puzzle game",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FAFAFA",
+  "theme_color": "#B2EBF2",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/vennstack.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
+
