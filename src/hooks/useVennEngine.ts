@@ -152,11 +152,55 @@ export function useVennEngine(
     const correct: string[] = [];
     const incorrect: string[] = [];
 
+    // First, check if left and right categories are swapped
+    // Get all items that should be in left or right (excluding both/outside)
+    const leftItems = puzzleData.items.filter(item => item.zone === 'left');
+    const rightItems = puzzleData.items.filter(item => item.zone === 'right');
+    
+    // Check if all left items are together in one zone (either left or right)
+    const leftItemsPlaced = leftItems.filter(item => {
+      const placedZone = itemPlacements.get(item.id);
+      return placedZone === 'left' || placedZone === 'right';
+    });
+    
+    // Check if all right items are together in one zone (either left or right)
+    const rightItemsPlaced = rightItems.filter(item => {
+      const placedZone = itemPlacements.get(item.id);
+      return placedZone === 'left' || placedZone === 'right';
+    });
+    
+    // Determine if there's a swap: all left items in one zone, all right items in the other
+    let isSwapped = false;
+    if (leftItemsPlaced.length === leftItems.length && rightItemsPlaced.length === rightItems.length) {
+      // Check if all left items are in the same zone
+      const leftItemZones = new Set(leftItems.map(item => itemPlacements.get(item.id)).filter(Boolean));
+      const rightItemZones = new Set(rightItems.map(item => itemPlacements.get(item.id)).filter(Boolean));
+      
+      // If left items are all in 'right' and right items are all in 'left', it's swapped
+      if (leftItemZones.size === 1 && rightItemZones.size === 1) {
+        const leftZone = Array.from(leftItemZones)[0];
+        const rightZone = Array.from(rightItemZones)[0];
+        isSwapped = (leftZone === 'right' && rightZone === 'left');
+      }
+    }
+
     puzzleData.items.forEach(item => {
       const placedZone = itemPlacements.get(item.id);
       if (!placedZone) return;
 
-      if (placedZone === item.zone) {
+      let isCorrect = false;
+      
+      // Handle swapped left/right categories
+      if (isSwapped && (item.zone === 'left' || item.zone === 'right')) {
+        // If swapped, left items in right zone are correct, right items in left zone are correct
+        isCorrect = (item.zone === 'left' && placedZone === 'right') || 
+                   (item.zone === 'right' && placedZone === 'left');
+      } else {
+        // Normal validation: must be in exact zone (or swapped if swap detected)
+        isCorrect = placedZone === item.zone;
+      }
+
+      if (isCorrect) {
         correct.push(item.id);
         setLockedItems(prev => new Set(prev).add(item.id));
         playLockSound();
@@ -170,9 +214,11 @@ export function useVennEngine(
       const updatedLocked = new Set(lockedItems);
       correct.forEach(id => updatedLocked.add(id));
       
+      // Count items that belong to left category (regardless of which box they're in)
       const leftCount = puzzleData.items.filter(
         item => item.zone === 'left' && updatedLocked.has(item.id)
       ).length;
+      // Count items that belong to right category (regardless of which box they're in)
       const rightCount = puzzleData.items.filter(
         item => item.zone === 'right' && updatedLocked.has(item.id)
       ).length;
