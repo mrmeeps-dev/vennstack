@@ -20,7 +20,7 @@ export function Card({
   item, 
   state, 
   zoneType, 
-  onReturnToPool, 
+  onReturnToPool: _onReturnToPool, 
   isGameLocked,
   justLocked = false,
   solutionRevealed = false,
