@@ -12,6 +12,7 @@ export interface PuzzleStats {
     zoneOrder: Record<Zone, string[]>;
     lockedItems: string[];
     revealedRules: { left: boolean; right: boolean };
+    isMirrored?: boolean;
   };
 }
 
@@ -128,6 +129,7 @@ export function useStats() {
       zoneOrder: Map<Zone, string[]>;
       lockedItems: Set<string>;
       revealedRules: { left: boolean; right: boolean };
+      isMirrored?: boolean;
     }
   ) => {
     setStats(prev => {
@@ -159,6 +161,7 @@ export function useStats() {
           },
           lockedItems: Array.from(lockedState.lockedItems),
           revealedRules: lockedState.revealedRules,
+          isMirrored: lockedState.isMirrored,
         } : undefined;
         
         puzzles[puzzleId] = {

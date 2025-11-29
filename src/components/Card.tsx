@@ -52,13 +52,10 @@ export function Card({
     }
   }, [justLocked]);
 
-  // CRITICAL: Card is filtered out during drag, so this won't render
-  // This is defensive - if it does render during drag, don't show it
-  if (isDragging) {
-    return null;
-  }
+  // Note: Card must remain in DOM during drag for dnd-kit to maintain reference
+  // It will be hidden via opacity in WordDealer.tsx
 
-  // Only apply transform if it exists (shouldn't happen since card is filtered out)
+  // Only apply transform if it exists
   const style = transform ? {
     transform: CSS.Translate.toString(transform),
   } : undefined;
@@ -104,7 +101,10 @@ export function Card({
   return (
     <div
       ref={setNodeRef}
-      style={style}
+      style={{
+        ...style,
+        ...(isDraggable ? { touchAction: 'pan-x' as const } : {}),
+      }}
       className={`${getCardClasses()} ${animationClass} ${isCelebrating && state === 'locked' ? 'celebrate-pulse' : ''} ${solutionRevealed && wasIncorrect ? 'solution-float' : ''}`}
       {...(isDraggable ? attributes : {})}
       {...(isDraggable ? listeners : {})}

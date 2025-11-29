@@ -2,12 +2,11 @@ import {
   DndContext,
   DragOverlay,
   closestCenter,
-  MouseSensor,
-  TouchSensor,
+  PointerSensor,
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
-import { ReactNode } from 'react';
+import { ReactNode, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 
 interface DndProviderProps {
@@ -17,6 +16,7 @@ interface DndProviderProps {
   onDragCancel: () => void;
   activeId: string | null;
   renderOverlay: (id: string) => ReactNode;
+  canScrollWordPool?: boolean;
 }
 
 export function DndProvider({
@@ -25,22 +25,27 @@ export function DndProvider({
   onDragEnd,
   onDragCancel,
   activeId,
-  renderOverlay
+  renderOverlay,
+  canScrollWordPool = true
 }: DndProviderProps) {
+  // Dynamically adjust drag activation distance based on scroll state
+  // When scrolling is available, use higher distance to prevent accidental drags
+  // When no scrolling is needed (few cards left), use very small distance for responsive dragging
+  // Memoize the activation constraint config, but call hooks at top level
+  const sensorConfig = useMemo(
+    () => ({
+      activationConstraint: {
+        // Use higher distance when scrolling is possible to prevent "ghost drags"
+        // Use very small distance when no scrolling to allow responsive horizontal dragging
+        // while still preventing accidental drags from tiny movements
+        distance: canScrollWordPool ? 15 : 1,
+      },
+    }),
+    [canScrollWordPool]
+  );
+
   const sensors = useSensors(
-    // Mouse for desktop
-    useSensor(MouseSensor, {
-      activationConstraint: {
-        distance: 4,
-      },
-    }),
-    // Touch for mobile / tablets
-    useSensor(TouchSensor, {
-      activationConstraint: {
-        delay: 150,
-        tolerance: 8,
-      },
-    }),
+    useSensor(PointerSensor, sensorConfig)
   );
 
   return (
@@ -53,7 +58,7 @@ export function DndProvider({
     >
       {children}
       {createPortal(
-        <DragOverlay dropAnimation={null}>
+        <DragOverlay dropAnimation={null} zIndex={100}>
           {activeId && renderOverlay(activeId)}
         </DragOverlay>,
         document.body

@@ -34,12 +34,13 @@ export interface GameState {
     left: boolean;
     right: boolean;
   };
+  isMirrored: boolean;
 }
 
 export interface GameActions {
   placeItem: (itemId: string, targetZone: Zone, insertAfterId?: string | null) => void;
   removeItem: (itemId: string) => void;
-  validatePuzzle: () => { correct: string[]; incorrect: string[] };
+  validatePuzzle: () => { correct: string[]; incorrect: string[]; isMirrored: boolean };
   autoPlaceAllItems: () => void;
   handleDrop: (event: any, mousePosition?: { x: number; y: number } | null) => void;
   revealOneHint?: () => string | null;

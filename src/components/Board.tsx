@@ -13,7 +13,8 @@ interface BoardProps {
   activeCardId?: string | null;
   justLockedIds?: Set<string>;
   solutionRevealed?: boolean;
-   isCelebrating?: boolean;
+  isCelebrating?: boolean;
+  isMirrored?: boolean;
 }
 
 export function Board({
@@ -28,7 +29,8 @@ export function Board({
   activeCardId,
   justLockedIds,
   solutionRevealed = false,
-  isCelebrating = false
+  isCelebrating = false,
+  isMirrored = false
 }: BoardProps) {
   const getZoneItems = (zone: ZoneType): Item[] => {
     const order = zoneOrder.get(zone) || [];
@@ -37,13 +39,17 @@ export function Board({
       .filter((item): item is Item => item !== undefined);
   };
 
+  // Get rule labels based on mirrored state
+  const getLeftRule = () => isMirrored ? puzzle.rules.right : puzzle.rules.left;
+  const getRightRule = () => isMirrored ? puzzle.rules.left : puzzle.rules.right;
+
   return (
     <div className="w-full mx-auto px-3 sm:px-2 relative h-full grid grid-rows-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_0.5rem_minmax(0,1fr)] min-h-0 overflow-hidden">
       {/* Top Zone (left) */}
       <div className="min-h-0 h-full overflow-hidden">
         <Zone
           zoneType="left"
-          label={puzzle.rules.left}
+          label={getLeftRule()}
           placeholderLabel="Category A"
           items={getZoneItems('left')}
           lockedItems={lockedItems}
@@ -64,7 +70,7 @@ export function Board({
       <div className="min-h-0 h-full overflow-hidden">
         <Zone
           zoneType="both"
-          label={`${puzzle.rules.left} & ${puzzle.rules.right}`}
+          label={`${getLeftRule()} & ${getRightRule()}`}
           placeholderLabel="Both Sets"
           items={getZoneItems('both')}
           lockedItems={lockedItems}
@@ -85,7 +91,7 @@ export function Board({
       <div className="min-h-0 h-full overflow-hidden">
         <Zone
           zoneType="right"
-          label={puzzle.rules.right}
+          label={getRightRule()}
           placeholderLabel="Category B"
           items={getZoneItems('right')}
           lockedItems={lockedItems}

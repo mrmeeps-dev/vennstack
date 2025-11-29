@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu as MenuIcon, HelpCircle, ChevronUp } from 'lucide-react';
 import { Board } from './components/Board';
-import { WordPool } from './components/WordPool';
+import { WordDealer } from './components/WordDealer';
 import { AttemptProgressBar } from './components/AttemptProgressBar';
 import { Menu } from './components/Menu';
 import { Stats } from './components/Stats';
@@ -44,6 +44,7 @@ function App() {
   
   // @dnd-kit state
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
+  const [canScrollWordPool, setCanScrollWordPool] = useState(true); // Default to true to be safe
   
   const [hasStartedGame, setHasStartedGame] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -213,8 +214,6 @@ function App() {
   const [justLockedIds, setJustLockedIds] = useState<Set<string>>(new Set());
   const [isCelebrating, setIsCelebrating] = useState(false);
   
-  // Track mouse position during drag
-  const [mousePosition, setMousePosition] = useState<{ x: number; y: number } | null>(null);
   const [showTryAgain, setShowTryAgain] = useState(false);
   const [isButtonShaking, setIsButtonShaking] = useState(false);
   const [hintsUsed, setHintsUsed] = useState(0);
@@ -232,50 +231,35 @@ function App() {
   
   const handleDragStart = (event: any) => {
     setActiveCardId(event.active.id as string);
-    // As soon as the user starts adjusting the board again after a failed attempt,
-    // snap the CTA back to the normal \"Check Answer\" state and ensure it is enabled.
+    
     if (!isGameOver) {
       setShowTryAgain(false);
       setCanCheckPuzzle(true);
     }
-
-    // Track mouse position during drag
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
-    };
-    
-    const handleTouchMove = (e: TouchEvent) => {
-      if (e.touches[0]) {
-        setMousePosition({ x: e.touches[0].clientX, y: e.touches[0].clientY });
-      }
-    };
-    
-    window.addEventListener('mousemove', handleMouseMove, { passive: true });
-    window.addEventListener('touchmove', handleTouchMove, { passive: true });
-    
-    // Store cleanup function
-    (window as any).__dragCleanup = () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('touchmove', handleTouchMove);
-      setMousePosition(null);
-    };
+    // No window event listeners needed anymore!
   };
   
   const handleDragEnd = (event: any) => {
-    // Clean up mouse tracking
-    if ((window as any).__dragCleanup) {
-      (window as any).__dragCleanup();
-      delete (window as any).__dragCleanup;
+    const { active, delta } = event;
+    
+    // Calculate the final drop point from dnd-kit data
+    // active.rect.current.initial gives the starting box
+    // delta gives how far it moved
+    let dropPoint = null;
+    
+    if (active?.rect?.current?.initial) {
+      const initial = active.rect.current.initial;
+      // Calculate the center point of the dropped card
+      dropPoint = {
+        x: initial.left + delta.x + (initial.width / 2),
+        y: initial.top + delta.y + (initial.height / 2),
+      };
     }
     
-    // Process drop
-    game.handleDrop(event, mousePosition);
+    // Pass this calculated point to your game engine
+    game.handleDrop(event, dropPoint);
     
-    // CRITICAL FIX: Clear active state immediately
-    // No setTimeout hack - React's state update will handle the handover
-    // The key-changing strategy in Zone.tsx forces remount, triggering animation
     setActiveCardId(null);
-    setMousePosition(null);
     
     // Clear error state when card is moved (user is trying to fix it)
     // The incorrect state will be re-evaluated on the next check
@@ -287,14 +271,8 @@ function App() {
   };
   
   const handleDragCancel = () => {
-    // Clean up mouse tracking
-    if ((window as any).__dragCleanup) {
-      (window as any).__dragCleanup();
-      delete (window as any).__dragCleanup;
-    }
-    
     setActiveCardId(null);
-    setMousePosition(null);
+    // No cleanup needed
   };
   
   
@@ -528,6 +506,7 @@ function App() {
         zoneOrder: game.zoneOrder,
         lockedItems: game.lockedItems,
         revealedRules: game.revealedRules,
+        isMirrored: game.isMirrored,
       };
       
       recordPuzzleCompletion(
@@ -545,7 +524,7 @@ function App() {
       setShowSuccessSheet(true);
       setHasSeenSummary(true);
     }
-  }, [isPuzzleComplete, hasRecordedCompletion, hasRecordedPuzzleStart, checkAttempts, lockedCount, game.itemPlacements, game.zoneOrder, game.lockedItems, game.revealedRules, recordPuzzleCompletion, puzzleData.id, isPuzzleCompleted]);
+  }, [isPuzzleComplete, hasRecordedCompletion, hasRecordedPuzzleStart, checkAttempts, lockedCount, game.itemPlacements, game.zoneOrder, game.lockedItems, game.revealedRules, game.isMirrored, recordPuzzleCompletion, puzzleData.id, isPuzzleCompleted]);
   
   // Automatically reveal solution when summary sheet is shown
   useEffect(() => {
@@ -648,6 +627,7 @@ function App() {
           onDragCancel={handleDragCancel}
           activeId={activeCardId}
           renderOverlay={renderOverlay}
+          canScrollWordPool={canScrollWordPool}
         >
         <div className="h-screen bg-[#FAFAFA] flex items-center justify-center p-0 safe-area overflow-hidden" style={{ height: '100dvh' }}>
       <div className="w-full max-w-[428px] bg-[#FAFAFA] flex flex-col h-full mx-auto shadow-lg relative">
@@ -825,6 +805,7 @@ function App() {
             activeCardId={activeCardId}
             justLockedIds={justLockedIds}
             isCelebrating={isCelebrating}
+            isMirrored={game.isMirrored}
           />
         </main>
 
@@ -860,15 +841,14 @@ function App() {
               </div>
             </div>
           ) : (
-            <div className="bg-[#F8FAFC] border-t border-slate-200/30 border-b border-slate-200/30 px-3 pt-3 pb-3 sm:p-3 min-h-[6rem]">
-              <WordPool
-                items={game.puzzle.items}
-                lockedItems={game.lockedItems}
-                itemPlacements={game.itemPlacements}
-                isGameLocked={isPuzzleComplete || isGameOver}
-                activeCardId={activeCardId}
-              />
-            </div>
+            <WordDealer
+              items={game.puzzle.items}
+              lockedItems={game.lockedItems}
+              itemPlacements={game.itemPlacements}
+              isGameLocked={isPuzzleComplete || isGameOver}
+              activeCardId={activeCardId}
+              onScrollStateChange={setCanScrollWordPool}
+            />
           )}
 
           {/* Attempt Progress Bar - Above Button */}
