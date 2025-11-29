@@ -10,7 +10,7 @@ interface CardRect {
 
 export function createFlexWrapCollision(): CollisionDetection {
   return (args) => {
-    const { active, droppableContainers, pointerCoordinates } = args;
+    const { active: _active, droppableContainers, pointerCoordinates } = args;
     
     if (!pointerCoordinates) {
       return closestCenter(args);
@@ -153,9 +153,10 @@ function findClosestGap(
             insertAfterId: closest.after
           }
         }
-      }
+      },
+      value: 0
     }
-  } as CollisionDescriptor;
+  } as unknown as CollisionDescriptor;
 }
 
 

@@ -19,7 +19,7 @@ interface BoardProps {
 export function Board({
   puzzle,
   lockedItems,
-  itemPlacements,
+  itemPlacements: _itemPlacements,
   zoneOrder,
   revealedRules,
   incorrectItems,

@@ -6,7 +6,7 @@ export interface ZoneDensity {
   fontSize: string;
 }
 
-export function useZoneDensity(itemCount: number, zoneHeight?: number): ZoneDensity {
+export function useZoneDensity(itemCount: number, _zoneHeight?: number): ZoneDensity {
   if (itemCount <= 5) {
     return { 
       scale: 1.0, 

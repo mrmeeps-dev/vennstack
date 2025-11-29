@@ -12,7 +12,7 @@ export function checkForDuplicates(gameState: GameState) {
   
   // Check itemPlacements - should have each item only once
   const itemCounts = new Map<string, number>();
-  for (const [itemId, zone] of itemPlacements.entries()) {
+  for (const [itemId, _zone] of itemPlacements.entries()) {
     itemCounts.set(itemId, (itemCounts.get(itemId) || 0) + 1);
   }
   

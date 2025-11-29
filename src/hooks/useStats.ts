@@ -151,7 +151,12 @@ export function useStats() {
         // Convert Maps and Sets to plain objects for storage
         const storedState = lockedState ? {
           itemPlacements: Object.fromEntries(lockedState.itemPlacements),
-          zoneOrder: Object.fromEntries(lockedState.zoneOrder),
+          zoneOrder: {
+            left: lockedState.zoneOrder.get('left') || [],
+            right: lockedState.zoneOrder.get('right') || [],
+            both: lockedState.zoneOrder.get('both') || [],
+            outside: lockedState.zoneOrder.get('outside') || [],
+          },
           lockedItems: Array.from(lockedState.lockedItems),
           revealedRules: lockedState.revealedRules,
         } : undefined;

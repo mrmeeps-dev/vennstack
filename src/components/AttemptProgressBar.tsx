@@ -10,7 +10,7 @@ interface AttemptProgressBarProps {
 
 import { useEffect, useState } from 'react';
 
-export function AttemptProgressBar({ attemptsUsed, maxAttempts, buttonWidth, isGameOver, isSuccess }: AttemptProgressBarProps) {
+export function AttemptProgressBar({ attemptsUsed, maxAttempts, buttonWidth: _buttonWidth, isGameOver, isSuccess }: AttemptProgressBarProps) {
   const segments = Array.from({ length: maxAttempts }, (_, i) => i);
 
   // When game is over on the final attempt, sweep red from right to left

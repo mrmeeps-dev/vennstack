@@ -19,7 +19,7 @@ export function LossSummarySheet({
   correctFound,
   attemptsUsed,
   maxAttempts,
-  shareGrid,
+  shareGrid: _shareGrid,
   countdownText,
   onClose,
   onShare,

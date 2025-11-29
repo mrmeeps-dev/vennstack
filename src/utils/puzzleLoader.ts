@@ -26,11 +26,11 @@ export async function loadPuzzleByDate(date: string): Promise<PuzzleData> {
 
   try {
     // Try to load from bundled puzzles first (using import.meta.glob)
-    const puzzleModules = import.meta.glob('/src/data/*.json', { eager: false });
+    const puzzleModules = import.meta.glob('/src/data/*.json', { eager: false }) as Record<string, () => Promise<{ default: PuzzleData } | PuzzleData>>;
     const puzzlePath = `/src/data/${date}.json`;
     
     if (puzzleModules[puzzlePath]) {
-      const module = await puzzleModules[puzzlePath]() as { default: PuzzleData } | PuzzleData;
+      const module = await puzzleModules[puzzlePath]();
       const puzzle = (module as { default: PuzzleData }).default || module as PuzzleData;
       puzzleCache.set(date, puzzle);
       return puzzle;
@@ -76,12 +76,12 @@ export async function loadAllPuzzles(): Promise<Map<string, PuzzleData>> {
   try {
     // Use Vite's import.meta.glob to get all puzzle files
     // This works at build time and provides all available puzzles
-    const puzzleModules = import.meta.glob('/src/data/*.json', { eager: false });
+    const puzzleModules = import.meta.glob('/src/data/*.json', { eager: false }) as Record<string, () => Promise<{ default: PuzzleData } | PuzzleData>>;
     
     // Load all puzzles
-    const loadPromises = Object.entries(puzzleModules).map(async ([path, module]) => {
+    const loadPromises = Object.entries(puzzleModules).map(async ([path, moduleLoader]) => {
       try {
-        const moduleResult = await module() as { default: PuzzleData } | PuzzleData;
+        const moduleResult = await moduleLoader();
         const puzzleData = (moduleResult as { default: PuzzleData }).default || moduleResult as PuzzleData;
         
         // Extract date from filename (e.g., /src/data/2025-01-15.json -> 2025-01-15)

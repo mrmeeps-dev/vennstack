@@ -17,7 +17,7 @@ export function SuccessSummarySheet({
   totalItems,
   attemptsUsed,
   maxAttempts,
-  shareGrid,
+  shareGrid: _shareGrid,
   countdownText,
   onClose,
   onShare,
