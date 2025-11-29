@@ -26,16 +26,17 @@ function App() {
   const [allPuzzles, setAllPuzzles] = useState<PuzzleData[]>([samplePuzzle as PuzzleData]);
   const [earliestPuzzleDate, setEarliestPuzzleDate] = useState<string | null>(null);
   const stats = useStats();
+  const { recordPuzzleStart, recordPuzzleCompletion, recordAttempt, isPuzzleCompleted: checkIsPuzzleCompleted, getPuzzleLockedState } = stats;
   
   // Check if current puzzle is completed and get locked state
-  // Use useMemo to recalculate when puzzleData.id or stats change
+  // Use useMemo to recalculate when puzzleData.id or the completion check function changes
   const isPuzzleCompleted = useMemo(() => {
-    return puzzleData.id ? stats.isPuzzleCompleted(puzzleData.id) : false;
-  }, [puzzleData.id, stats]);
+    return puzzleData.id ? checkIsPuzzleCompleted(puzzleData.id) : false;
+  }, [puzzleData.id, checkIsPuzzleCompleted]);
   
   const lockedState = useMemo(() => {
-    return puzzleData.id ? stats.getPuzzleLockedState(puzzleData.id) : undefined;
-  }, [puzzleData.id, stats]);
+    return puzzleData.id ? getPuzzleLockedState(puzzleData.id) : undefined;
+  }, [puzzleData.id, getPuzzleLockedState]);
   
   const game = useVennEngine(puzzleData, isPuzzleCompleted, lockedState);
   const [incorrectItemIds, setIncorrectItemIds] = useState<Set<string>>(new Set());
@@ -276,7 +277,8 @@ function App() {
     setActiveCardId(null);
     setMousePosition(null);
     
-    // Clear error state
+    // Clear error state when card is moved (user is trying to fix it)
+    // The incorrect state will be re-evaluated on the next check
     setIncorrectItemIds(prev => {
       const next = new Set(prev);
       next.delete(event.active.id as string);
@@ -319,10 +321,10 @@ function App() {
   // Record puzzle start on mount
   useEffect(() => {
     if (!hasRecordedPuzzleStart) {
-      stats.recordPuzzleStart(puzzleData.id);
+      recordPuzzleStart(puzzleData.id);
       setHasRecordedPuzzleStart(true);
     }
-  }, [hasRecordedPuzzleStart, stats, puzzleData.id]);
+  }, [hasRecordedPuzzleStart, recordPuzzleStart, puzzleData.id]);
 
   const handleCheckPuzzle = () => {
     if (isPuzzleComplete || isGameOver) {
@@ -332,7 +334,7 @@ function App() {
     setCanCheckPuzzle(false);
     const nextAttempts = checkAttempts + 1;
     setCheckAttempts(nextAttempts);
-    stats.recordAttempt(puzzleData.id);
+    recordAttempt(puzzleData.id);
     
     const prevLockedCount = game.lockedItems.size;
     const result = game.validatePuzzle();
@@ -528,7 +530,7 @@ function App() {
         revealedRules: game.revealedRules,
       };
       
-      stats.recordPuzzleCompletion(
+      recordPuzzleCompletion(
         checkAttempts, 
         lockedCount, 
         itemsPlaced, 
@@ -543,7 +545,7 @@ function App() {
       setShowSuccessSheet(true);
       setHasSeenSummary(true);
     }
-  }, [isPuzzleComplete, hasRecordedCompletion, hasRecordedPuzzleStart, checkAttempts, lockedCount, game.itemPlacements, game.zoneOrder, game.lockedItems, game.revealedRules, stats, puzzleData.id, isPuzzleCompleted]);
+  }, [isPuzzleComplete, hasRecordedCompletion, hasRecordedPuzzleStart, checkAttempts, lockedCount, game.itemPlacements, game.zoneOrder, game.lockedItems, game.revealedRules, recordPuzzleCompletion, puzzleData.id, isPuzzleCompleted]);
   
   // Automatically reveal solution when summary sheet is shown
   useEffect(() => {
@@ -567,7 +569,17 @@ function App() {
   
   // Reset game state when puzzle changes (but preserve state if puzzle is already completed)
   useEffect(() => {
-    const wasCompleted = puzzleData.id ? stats.isPuzzleCompleted(puzzleData.id) : false;
+    // Only reset when puzzle actually changes, not when completion check function changes
+    const puzzleChanged = prevPuzzleIdRef.current !== puzzleData.id;
+    if (!puzzleChanged && prevPuzzleIdRef.current !== undefined) {
+      return; // Don't reset if puzzle hasn't changed
+    }
+    
+    if (puzzleData.id) {
+      prevPuzzleIdRef.current = puzzleData.id;
+    }
+    
+    const wasCompleted = puzzleData.id ? checkIsPuzzleCompleted(puzzleData.id) : false;
     const puzzleStats = puzzleData.id ? stats.stats.puzzles[puzzleData.id] : undefined;
     
     setIncorrectItemIds(new Set());
@@ -593,13 +605,6 @@ function App() {
     setIsGameOver(false);
     setShowLossSheet(false);
     
-    // Check if puzzle changed
-    const puzzleChanged = prevPuzzleIdRef.current !== puzzleData.id;
-    if (puzzleChanged && puzzleData.id) {
-      prevPuzzleIdRef.current = puzzleData.id;
-      // Don't reset dismissed state - keep track per puzzle
-    }
-    
     // Check if this puzzle's summary was dismissed
     const isDismissed = puzzleData.id ? dismissedPuzzlesRef.current.has(puzzleData.id) : false;
     
@@ -613,7 +618,8 @@ function App() {
       const puzzleDate = new Date(puzzleData.id);
       setArchiveMonth(new Date(puzzleDate.getFullYear(), puzzleDate.getMonth(), 1));
     }
-  }, [puzzleData.id, stats]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [puzzleData.id]); // Only depend on puzzleData.id - use ref to track actual changes
 
 
   return (
