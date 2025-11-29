@@ -1,14 +1,8 @@
 name = "vennstack"
 compatibility_date = "2024-01-01"
+pages_build_output_dir = "dist"
 
 [build]
 command = "npm run build"
 cwd = "."
-
-[build.upload]
-format = "service-worker"
-dir = "dist"
-
-# For Cloudflare Pages, we'll use the Pages configuration instead
-# This file is for reference - Pages uses the dashboard or wrangler pages commands
 
