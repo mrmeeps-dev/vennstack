@@ -10,7 +10,8 @@
   "difficultyLabel": "Easy",
   "rules": {
     "left": "Things that are Round",
-    "right": "Food"
+    "right": "Food",
+    "both": "Round Food"
   },
   "items": [
     {

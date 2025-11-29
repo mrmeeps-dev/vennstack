@@ -296,6 +296,7 @@ export function useVennEngine(
       ['left', []], ['right', []], ['both', []], ['outside', []]
     ]);
 
+    // Place all items in their correct zones (natural zones from puzzle definition)
     puzzleData.items.forEach(item => {
       placements.set(item.id, item.zone);
       orders.get(item.zone)!.push(item.id);
@@ -305,6 +306,8 @@ export function useVennEngine(
     setZoneOrder(orders);
     setLockedItems(new Set(puzzleData.items.map(i => i.id)));
     setRevealedRules({ left: true, right: true });
+    // Reset mirrored state since we're placing everything correctly
+    setIsMirrored(false);
   }, [puzzleData]);
 
   const handleDrop = useCallback((event: any, mousePosition?: { x: number; y: number } | null) => {

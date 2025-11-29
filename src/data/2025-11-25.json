@@ -10,7 +10,8 @@
   "difficultyLabel": "Medium",
   "rules": {
     "left": "Chemical Elements",
-    "right": "Gases (at room temp)"
+    "right": "Gases (at room temp)",
+    "both": "Gaseous Elements"
   },
   "items": [
     {

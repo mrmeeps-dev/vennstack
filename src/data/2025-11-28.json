@@ -10,7 +10,8 @@
   "difficultyLabel": "Hard",
   "rules": {
     "left": "Things You Wear",
-    "right": "Made of Leather"
+    "right": "Made of Leather",
+    "both": "Leather Clothing"
   },
   "items": [
     {

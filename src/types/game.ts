@@ -21,6 +21,7 @@ export interface PuzzleData {
   rules: {
     left: string;
     right: string;
+    both?: string; // Synthesized definition for "Both Sets"
   };
   items: Item[];
 }

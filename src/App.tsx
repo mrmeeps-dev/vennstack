@@ -219,6 +219,12 @@ function App() {
   const [hintsUsed, setHintsUsed] = useState(0);
   const [isHintMenuOpen, setIsHintMenuOpen] = useState(false);
   const hintMenuTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  
+  // Secret debug feature: Press 'D' 5 times quickly (desktop) or tap hint button 5 times (mobile) to auto-solve
+  const debugKeyPressCount = useRef(0);
+  const debugKeyPressTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const debugHintTapCount = useRef(0);
+  const debugHintTapTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [showLossSheet, setShowLossSheet] = useState(false);
   const [showSuccessSheet, setShowSuccessSheet] = useState(false);
   const [hasSeenSummary, setHasSeenSummary] = useState(false);
@@ -406,6 +412,75 @@ function App() {
   // Puzzle is complete if all items are locked OR if it was previously completed
   const isPuzzleComplete = (lockedCount === totalItems && totalItems > 0) || isPuzzleCompleted;
   const resultCorrect = finalCorrectCount ?? lockedCount;
+  
+  // Secret debug feature: Press 'D' key 5 times quickly (within 2 seconds) to auto-solve
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      // Only trigger in development or if user explicitly wants debug mode
+      // Check for 'D' or 'd' key
+      if (e.key.toLowerCase() === 'd' && !e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey) {
+        // Clear previous timeout
+        if (debugKeyPressTimeout.current) {
+          clearTimeout(debugKeyPressTimeout.current);
+        }
+
+        debugKeyPressCount.current += 1;
+
+        // If 5 presses within 2 seconds, auto-solve
+        if (debugKeyPressCount.current >= 5) {
+          if (game.autoPlaceAllItems && !isPuzzleComplete && !isGameOver) {
+            game.autoPlaceAllItems();
+            const allItemIds = new Set(puzzleData.items.map(item => item.id));
+            setJustLockedIds(allItemIds);
+            setTimeout(() => setJustLockedIds(new Set()), 450);
+            playHintSound();
+          }
+          debugKeyPressCount.current = 0;
+        } else {
+          // Reset counter after 2 seconds of no presses
+          debugKeyPressTimeout.current = setTimeout(() => {
+            debugKeyPressCount.current = 0;
+          }, 2000);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => {
+      window.removeEventListener('keydown', handleKeyPress);
+      if (debugKeyPressTimeout.current) {
+        clearTimeout(debugKeyPressTimeout.current);
+      }
+    };
+  }, [game, isPuzzleComplete, isGameOver, puzzleData.items]);
+
+  // Handler for mobile debug: tap hint button 5 times quickly to auto-solve
+  const handleHintDebugTap = () => {
+    // Clear previous timeout
+    if (debugHintTapTimeout.current) {
+      clearTimeout(debugHintTapTimeout.current);
+    }
+
+    debugHintTapCount.current += 1;
+
+    // If 5 taps within 2 seconds, auto-solve
+    if (debugHintTapCount.current >= 5) {
+      if (game.autoPlaceAllItems && !isPuzzleComplete && !isGameOver) {
+        game.autoPlaceAllItems();
+        const allItemIds = new Set(puzzleData.items.map(item => item.id));
+        setJustLockedIds(allItemIds);
+        setTimeout(() => setJustLockedIds(new Set()), 450);
+        playHintSound();
+      }
+      debugHintTapCount.current = 0;
+    } else {
+      // Reset counter after 2 seconds of no taps
+      debugHintTapTimeout.current = setTimeout(() => {
+        debugHintTapCount.current = 0;
+      }, 2000);
+    }
+  };
+
   // Can actually fire a hint (needs placed cards)
   const canUseHintAction = !isPuzzleComplete && !isGameOver && !isPuzzleCompleted && hintsUsed < MAX_HINTS && hasPlacedItems;
   // When to show the subtle nudge (based on attempts, regardless of exact availability)
@@ -700,16 +775,25 @@ function App() {
                 <motion.button
                   type="button"
                   onClick={() => {
-                    // Toggle the hint options menu; actual hint is chosen from the menu
-                    setIsHintMenuOpen(prev => {
-                      const newState = !prev;
-                      // Clear timeout when toggling
-                      if (hintMenuTimeoutRef.current) {
-                        clearTimeout(hintMenuTimeoutRef.current);
-                        hintMenuTimeoutRef.current = null;
-                      }
-                      return newState;
-                    });
+                    // Track tap for debug feature (5 quick taps = auto-solve)
+                    handleHintDebugTap();
+                    
+                    // Only toggle menu if not in a debug sequence
+                    if (debugHintTapCount.current < 2) {
+                      // Toggle the hint options menu; actual hint is chosen from the menu
+                      setIsHintMenuOpen(prev => {
+                        const newState = !prev;
+                        // Clear timeout when toggling
+                        if (hintMenuTimeoutRef.current) {
+                          clearTimeout(hintMenuTimeoutRef.current);
+                          hintMenuTimeoutRef.current = null;
+                        }
+                        return newState;
+                      });
+                    } else {
+                      // Prevent menu from opening during debug sequence
+                      setIsHintMenuOpen(false);
+                    }
                   }}
                   className={`
                     p-2 rounded-lg transition-colors text-slate-600

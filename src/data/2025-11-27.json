@@ -10,7 +10,8 @@
   "difficultyLabel": "Hard",
   "rules": {
     "left": "Things with a Handle",
-    "right": "Things that Hold Water"
+    "right": "Things that Hold Water",
+    "both": "Water Containers with Handles"
   },
   "items": [
     {

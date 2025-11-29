@@ -10,7 +10,8 @@
   "difficultyLabel": "Hard",
   "rules": {
     "left": "Musical Instruments",
-    "right": "Things you blow into"
+    "right": "Things you blow into",
+    "both": "Instruments You Blow Into"
   },
   "items": [
     {

@@ -10,7 +10,8 @@
   "difficultyLabel": "Grandmaster",
   "rules": {
     "left": "Words following 'Blue'",
-    "right": "4-Letter Words"
+    "right": "4-Letter Words",
+    "both": "4-Letter Words Following 'Blue'"
   },
   "items": [
     {

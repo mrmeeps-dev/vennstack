@@ -10,7 +10,8 @@
   "difficultyLabel": "Medium",
   "rules": {
     "left": "African Countries",
-    "right": "Countries on the Equator"
+    "right": "Countries on the Equator",
+    "both": "African Countries on the Equator"
   },
   "items": [
     {

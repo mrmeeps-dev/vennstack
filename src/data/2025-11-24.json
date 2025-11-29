@@ -10,7 +10,8 @@
   "difficultyLabel": "Easy",
   "rules": {
     "left": "Things that are Yellow",
-    "right": "Fruits"
+    "right": "Fruits",
+    "both": "Yellow Fruits"
   },
   "items": [
     {

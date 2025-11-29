@@ -42,9 +42,21 @@ export function Board({
   // Get rule labels based on mirrored state
   const getLeftRule = () => isMirrored ? puzzle.rules.right : puzzle.rules.left;
   const getRightRule = () => isMirrored ? puzzle.rules.left : puzzle.rules.right;
+  
+  // Win state: both rules are revealed
+  const isWinState = revealedRules.left && revealedRules.right;
+  
+  // Get "Both Sets" definition - use rules.both if available, otherwise fallback to combined format
+  const getBothDefinition = () => {
+    if (puzzle.rules.both) {
+      return puzzle.rules.both;
+    }
+    // Fallback to combined format
+    return `${getLeftRule()} & ${getRightRule()}`;
+  };
 
   return (
-    <div className="w-full mx-auto px-3 sm:px-2 relative h-full grid grid-rows-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_0.5rem_minmax(0,1fr)] min-h-0 overflow-hidden">
+    <div className="w-full mx-auto px-3 sm:px-2 relative h-full grid grid-rows-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_0.5rem_auto] min-h-0 overflow-hidden">
       {/* Top Zone (left) */}
       <div className="min-h-0 h-full overflow-hidden">
         <Zone
@@ -63,6 +75,7 @@ export function Board({
           isCelebrating={isCelebrating}
           position="top"
           isInternal={true}
+          isWinState={isWinState}
         />
       </div>
 
@@ -84,6 +97,8 @@ export function Board({
           isCelebrating={isCelebrating}
           position="middle"
           isInternal={true}
+          isWinState={isWinState}
+          bothDefinition={getBothDefinition()}
         />
       </div>
 
@@ -105,6 +120,7 @@ export function Board({
           isCelebrating={isCelebrating}
           position="middle"
           isInternal={true}
+          isWinState={isWinState}
         />
       </div>
 
@@ -112,7 +128,7 @@ export function Board({
       <div></div>
 
       {/* Outside Zone (neither) */}
-      <div className="min-h-0 h-full overflow-hidden">
+      <div className="min-h-[120px] overflow-hidden">
         <Zone
           zoneType="outside"
           label="Neither"
@@ -129,6 +145,7 @@ export function Board({
           isCelebrating={isCelebrating}
           position="bottom"
           isInternal={false}
+          isWinState={isWinState}
         />
       </div>
     </div>

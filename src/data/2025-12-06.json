@@ -10,7 +10,8 @@
   "difficultyLabel": "Hard",
   "rules": {
     "left": "Furniture",
-    "right": "Things with Legs"
+    "right": "Things with Legs",
+    "both": "Furniture with Legs"
   },
   "items": [
     {

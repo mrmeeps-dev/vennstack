@@ -90,11 +90,11 @@ export function GameStart({ isOpen, onPlay, puzzleNumber, puzzleDate }: GameStar
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5, delay: 0.5, ease: 'easeOut' }}
-        whileHover={{ scale: 1.02, boxShadow: "0 12px 32px rgba(178, 235, 242, 0.4)" }}
+        whileHover={{ scale: 1.02, boxShadow: "0 12px 32px rgba(0, 0, 0, 0.25)" }}
         whileTap={{ scale: 0.95 }}
         onClick={onPlay}
-        className="px-6 sm:px-8 py-3 sm:py-3.5 rounded-full bg-[#B2EBF2] hover:bg-[#80DEEA] text-slate-800 font-semibold text-sm sm:text-base transition-colors"
-        style={{ boxShadow: '0 8px 24px rgba(178, 235, 242, 0.3)' }}
+        className="px-6 sm:px-8 py-3 sm:py-3.5 rounded-full bg-slate-900 hover:bg-slate-800 text-white font-semibold text-sm sm:text-base transition-colors"
+        style={{ boxShadow: '0 8px 24px rgba(0, 0, 0, 0.2)' }}
       >
         Play
       </motion.button>

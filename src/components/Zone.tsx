@@ -19,6 +19,8 @@ interface ZoneProps {
   position?: 'top' | 'middle' | 'bottom';
   isInternal?: boolean;
   isCelebrating?: boolean;
+  isWinState?: boolean; // True when both rules are revealed (win state)
+  bothDefinition?: string; // Synthesized definition for "Both Sets" zone
 }
 
 const ZONE_COLORS = {
@@ -43,7 +45,9 @@ export function Zone({
   solutionRevealed = false,
   position = 'middle',
   isInternal = false,
-  isCelebrating = false
+  isCelebrating = false,
+  isWinState = false,
+  bothDefinition
 }: ZoneProps) {
   const { setNodeRef, isOver } = useDroppable({
     id: `zone-${zoneType}`,
@@ -103,20 +107,39 @@ export function Zone({
         relative w-full h-full
         overflow-hidden flex flex-col min-h-0
         ${isOver ? 'is-drag-over' : ''}
+        ${isWinState && isInternal ? 'opacity-60' : ''}
       `}
     >
       {/* Zone label */}
-      <div className="absolute top-3 left-1/2 -translate-x-1/2 pointer-events-none z-20 w-full flex justify-center">
-        <div className={`
-          px-2.5 py-1 rounded-full text-xs uppercase tracking-wider font-bold bg-white/50 shadow-sm backdrop-blur-sm
-          ${zoneType === 'left' ? 'text-[#0D9488]' : ''}
-          ${zoneType === 'right' ? 'text-[#9333EA]' : ''}
-          ${zoneType === 'both' ? 'text-[#3B82F6]' : ''}
-          ${zoneType === 'outside' ? 'text-[#64748B]' : ''}
-        `}>
-          {isRevealed ? label.toUpperCase() : placeholderLabel.toUpperCase()}
+      {zoneType === 'outside' ? (
+        // "Neither" zone: watermark style - no background, small, transparent, uppercase
+        <div className="absolute top-3 left-1/2 -translate-x-1/2 pointer-events-none z-20 w-full flex justify-center">
+          <div className="text-xs uppercase tracking-wider font-semibold text-slate-700 opacity-60">
+            {isRevealed ? label.toUpperCase() : placeholderLabel.toUpperCase()}
+          </div>
         </div>
-      </div>
+      ) : (
+        // Category zones: in win state, no white pill - text directly on colored background
+        <div className={`absolute ${isWinState ? 'top-4' : 'top-3'} left-1/2 -translate-x-1/2 pointer-events-none z-20 w-full flex justify-center`}>
+          <div className={`
+            ${isWinState 
+              ? 'text-2xl tracking-wide font-black text-slate-900' 
+              : 'px-2.5 py-1 rounded-full text-xs uppercase tracking-wider font-bold bg-white/90 shadow-sm backdrop-blur-sm'
+            }
+            ${!isWinState && zoneType === 'left' ? 'text-[#0D9488]' : ''}
+            ${!isWinState && zoneType === 'right' ? 'text-[#9333EA]' : ''}
+            ${!isWinState && zoneType === 'both' ? 'text-[#3B82F6]' : ''}
+          `}>
+            {isRevealed 
+              ? (zoneType === 'both' && bothDefinition 
+                  ? bothDefinition 
+                  : (isWinState ? label : label.toUpperCase())
+                )
+              : placeholderLabel.toUpperCase()
+            }
+          </div>
+        </div>
+      )}
       
       {/* Items container - allow content to expand, but clip to zone bounds */}
       <div className="w-full h-full px-2 pt-14 pb-2 relative z-10 overflow-hidden">

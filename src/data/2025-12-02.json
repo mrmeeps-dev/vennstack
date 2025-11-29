@@ -10,7 +10,8 @@
   "difficultyLabel": "Medium",
   "rules": {
     "left": "US Presidents",
-    "right": "People on US Currency"
+    "right": "People on US Currency",
+    "both": "Presidents on US Currency"
   },
   "items": [
     {

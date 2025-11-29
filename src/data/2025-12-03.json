@@ -10,7 +10,8 @@
   "difficultyLabel": "Medium",
   "rules": {
     "left": "Mammals",
-    "right": "Aquatic Animals"
+    "right": "Aquatic Animals",
+    "both": "Aquatic Mammals"
   },
   "items": [
     {

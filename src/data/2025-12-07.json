@@ -10,7 +10,8 @@
   "difficultyLabel": "Grandmaster",
   "rules": {
     "left": "Words containing 'EAR'",
-    "right": "Body Parts"
+    "right": "Body Parts",
+    "both": "Body Parts Containing 'EAR'"
   },
   "items": [
     {

@@ -76,7 +76,7 @@ export function Card({
     // Reduced padding (py-1) for more compact display
     // Softer, more modern styling: thinner borders, softer shadows, more rounded
     // Font size is applied dynamically via getFontSize()
-    const base = 'card px-3 py-1 rounded-xl font-medium select-none min-h-[44px] flex items-center';
+    const base = 'card px-3 py-1 rounded-xl font-medium select-none min-h-[44px] flex items-center justify-center relative';
     const shadow = 'shadow-[0_1px_3px_0_rgba(0,0,0,0.08),0_1px_2px_0_rgba(0,0,0,0.04)]';
     
     if (state === 'locked') {
@@ -86,8 +86,8 @@ export function Card({
         return `${base} ${shadow} bg-white border border-red-300 text-red-600`;
       }
 
-      // Locked & correct: always use success green for text,
-      // and match the outline color to the stronger category title colors.
+      // Locked & correct: keep default text color, rely on border color change for feedback
+      // Match the outline color to the stronger category title colors.
       const borderColors = {
         // Match Zone label colors: #0D9488, #9333EA, #3B82F6, #64748B
         left: 'border-[#0D9488]',
@@ -98,13 +98,14 @@ export function Card({
 
       const borderClass = borderColors[zoneType as Zone] || 'border-[#3B82F6]';
 
-      return `${base} ${shadow} bg-white border ${borderClass} text-green-600`;
+      return `${base} ${shadow} bg-white border ${borderClass} text-gray-700`;
     }
 
     if (state === 'incorrect') {
+      // Incorrect cards: red outline only, keep default text color
       // Incorrect cards are draggable, so add cursor styles
-      const cursorClasses = !isGameLocked ? 'cursor-grab active:cursor-grabbing hover:border-red-400/80' : '';
-      return `${base} ${shadow} incorrect bg-white border border-red-300/60 text-red-600 ${cursorClasses}`;
+      const cursorClasses = !isGameLocked ? 'cursor-grab active:cursor-grabbing hover:border-red-500' : '';
+      return `${base} ${shadow} incorrect bg-white border-2 border-red-500 text-gray-700 ${cursorClasses}`;
     }
     
     return `${base} ${shadow} bg-white/95 border border-gray-200/80 text-gray-700 cursor-grab active:cursor-grabbing hover:border-gray-300/80 hover:bg-white`;
@@ -123,26 +124,7 @@ export function Card({
       data-card-id={item.id}
       data-zone={zoneType}
     >
-      {/* After solution reveal: show X for items that were incorrect, checkmark for correct ones */}
-      {solutionRevealed && state === 'locked' && (
-        wasIncorrect ? (
-          <span className="mr-1.5 text-red-500/80 font-semibold text-base">×</span>
-        ) : (
-          <span className="mr-1.5 text-green-600/90">✓</span>
-        )
-      )}
-      {/* During play: show checkmark for correct locked items */}
-      {!solutionRevealed && state === 'locked' && <span className="mr-1.5 text-green-600/90">✓</span>}
-      {/* Show return button for incorrect items during play */}
-      {!solutionRevealed && state === 'incorrect' && (
-        <button
-          onClick={() => onReturnToPool?.(item.id)}
-          className="mr-1.5 text-base leading-none hover:opacity-70 text-red-500/80"
-          type="button"
-        >
-          ×
-        </button>
-      )}
+      {/* Text is always in the same position - no icons to avoid layout shift */}
       <span className={getFontSize()}>{item.text}</span>
     </div>
   );

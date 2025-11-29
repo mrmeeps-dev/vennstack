@@ -10,7 +10,8 @@
   "difficultyLabel": "Hard",
   "rules": {
     "left": "Things with Keys",
-    "right": "Things with a Screen"
+    "right": "Things with a Screen",
+    "both": "Devices with Keys and Screens"
   },
   "items": [
     {
