@@ -66,12 +66,38 @@ export function Zone({
     return 'border-0';
   };
 
+  const getBackgroundStyle = (): { background?: string } => {
+    // Zone colors: left: #D1F7F5, both: #C5E3F0, right: #E8DAEF
+    // Fast transitions: 90-95% solid color, 5-10% transition at edges
+    if (zoneType === 'left' && isInternal && position === 'top') {
+      // Left zone: solid left color, ends at left color (transition happens in both zone)
+      return {
+        background: 'linear-gradient(to bottom, #D1F7F5 0%, #D1F7F5 100%)'
+      };
+    }
+    if (zoneType === 'both' && isInternal && position === 'middle') {
+      // Both zone: transition from left at top, mostly both color, transition to right at bottom (gradient zones grown by 30%)
+      return {
+        background: 'linear-gradient(to bottom, #D1F7F5 0%, #C5E3F0 7%, #C5E3F0 90%, #E8DAEF 100%)'
+      };
+    }
+    if (zoneType === 'right' && isInternal && position === 'middle') {
+      // Right zone: starts with right color to match both zone's end, then solid right color
+      return {
+        background: 'linear-gradient(to bottom, #E8DAEF 0%, #E8DAEF 100%)'
+      };
+    }
+    // Default: use solid color
+    return {};
+  };
+
   return (
     <div
       ref={setNodeRef}
       data-zone={zoneType}
+      style={getBackgroundStyle()}
       className={`
-        zone ${ZONE_COLORS[zoneType]} touch-none
+        zone ${!getBackgroundStyle().background ? ZONE_COLORS[zoneType] : ''} touch-none
         ${getRoundedCorners()}
         ${getBorderStyle()}
         relative w-full h-full

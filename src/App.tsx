@@ -464,12 +464,30 @@ function App() {
     const header = 'VennStack – Daily Puzzle';
     const summary = `Result: ${resultCorrect}/${totalItems} items\nAttempts: ${checkAttempts}/${MAX_CHECK_ATTEMPTS}`;
     const text = `${header}\n${summary}\n${shareGrid}\nNext level in ${countdownText}`;
+    
+    // Use Web Share API on mobile devices if available
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          text: text,
+        });
+        return; // Successfully shared via native share sheet
+      } catch (e) {
+        // User cancelled or share failed, fall through to clipboard
+        if ((e as Error).name !== 'AbortError') {
+          // eslint-disable-next-line no-console
+          console.error('Share failed', e);
+        }
+      }
+    }
+    
+    // Fallback to clipboard for desktop or if Web Share API is not available
     try {
       await navigator.clipboard.writeText(text);
     } catch (e) {
       // Ignore clipboard failure in environments where it's not available
       // eslint-disable-next-line no-console
-      console.error('Share failed', e);
+      console.error('Clipboard failed', e);
     }
   };
 
@@ -856,8 +874,20 @@ function App() {
             // After summary has been seen, show pulsing chevron instead of progress bar and button
             <div className="w-full bg-[#FAFAFA] px-3 pb-1 sm:pb-1.5">
               <div className="max-w-[428px] mx-auto relative w-full">
-                <button
-                  type="button"
+                <motion.div
+                  drag="y"
+                  dragConstraints={{ top: -100, bottom: 0 }}
+                  dragElastic={0.2}
+                  onDragEnd={(_, info) => {
+                    // Open summary on upward swipe (negative offset) or tap
+                    if (info.offset.y < -30 || info.velocity.y < -500) {
+                      if (isGameOver) {
+                        setShowLossSheet(true);
+                      } else if (isPuzzleComplete && !isGameOver && !solutionRevealed) {
+                        setShowSuccessSheet(true);
+                      }
+                    }
+                  }}
                   onClick={() => {
                     if (isGameOver) {
                       setShowLossSheet(true);
@@ -865,7 +895,7 @@ function App() {
                       setShowSuccessSheet(true);
                     }
                   }}
-                  className="w-full flex flex-col items-center justify-center gap-1 py-2 pointer-events-auto"
+                  className="w-full flex flex-col items-center justify-center gap-1 py-2 pointer-events-auto cursor-pointer"
                 >
                   <motion.div
                     animate={{
@@ -880,7 +910,7 @@ function App() {
                     <ChevronUp size={20} className="text-slate-500" />
                   </motion.div>
                   <span className="text-[10px] text-slate-500">Swipe for your summary</span>
-                </button>
+                </motion.div>
               </div>
             </div>
           ) : (

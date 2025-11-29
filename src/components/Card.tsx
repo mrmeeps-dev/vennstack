@@ -55,6 +55,17 @@ export function Card({
   // Note: Card must remain in DOM during drag for dnd-kit to maintain reference
   // It will be hidden via opacity in WordDealer.tsx
 
+  // Dynamic font sizing for long words to prevent line breaks
+  const getFontSize = () => {
+    const textLength = item.text.length;
+    if (textLength > 12) {
+      return 'text-xs'; // 12px for very long words
+    } else if (textLength > 9) {
+      return 'text-[13px]'; // 13px for long words
+    }
+    return 'text-sm'; // 14px default
+  };
+
   // Only apply transform if it exists
   const style = transform ? {
     transform: CSS.Translate.toString(transform),
@@ -62,9 +73,10 @@ export function Card({
 
   const getCardClasses = () => {
     // Ensure minimum 44px height for WCAG 2.5.5 AAA touch target compliance
-    // text-sm (14px) provides better readability than text-xs (12px) while staying compact
+    // Reduced padding (py-1) for more compact display
     // Softer, more modern styling: thinner borders, softer shadows, more rounded
-    const base = 'card px-3 py-2 rounded-xl text-sm font-medium select-none min-h-[44px] flex items-center';
+    // Font size is applied dynamically via getFontSize()
+    const base = 'card px-3 py-1 rounded-xl font-medium select-none min-h-[44px] flex items-center';
     const shadow = 'shadow-[0_1px_3px_0_rgba(0,0,0,0.08),0_1px_2px_0_rgba(0,0,0,0.04)]';
     
     if (state === 'locked') {
@@ -131,7 +143,7 @@ export function Card({
           ×
         </button>
       )}
-      {item.text}
+      <span className={getFontSize()}>{item.text}</span>
     </div>
   );
 }
