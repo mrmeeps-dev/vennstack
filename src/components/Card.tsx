@@ -1,0 +1,138 @@
+import { useDraggable } from '@dnd-kit/core';
+import { CSS } from '@dnd-kit/utilities';
+import { useState, useEffect } from 'react';
+import { Item, Zone } from '../types/game';
+import { CardDragData } from '../types/dnd';
+
+interface CardProps {
+  item: Item;
+  state: 'unlocked' | 'locked' | 'incorrect';
+  zoneType?: Zone | 'word-pool';
+  onReturnToPool?: (itemId: string) => void;
+  isGameLocked?: boolean;
+  justLocked?: boolean;
+  solutionRevealed?: boolean;
+  wasIncorrect?: boolean;
+  isCelebrating?: boolean;
+}
+
+export function Card({ 
+  item, 
+  state, 
+  zoneType, 
+  onReturnToPool, 
+  isGameLocked,
+  justLocked = false,
+  solutionRevealed = false,
+  wasIncorrect = false,
+  isCelebrating = false
+}: CardProps) {
+  const [animationClass, setAnimationClass] = useState('');
+
+  // Cards are draggable if game is not locked and card is either unlocked or incorrect
+  // (incorrect cards should be draggable so users can move them to try different categories)
+  const isDraggable = !isGameLocked && (state === 'unlocked' || state === 'incorrect');
+
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+    id: item.id,
+    data: {
+      type: 'card',
+      cardId: item.id,
+      sourceZone: zoneType || 'word-pool'
+    } as CardDragData,
+    disabled: !isDraggable
+  });
+
+  // Handle lock animation
+  useEffect(() => {
+    if (justLocked) {
+      setAnimationClass('just-locked');
+      const timer = setTimeout(() => setAnimationClass(''), 450);
+      return () => clearTimeout(timer);
+    }
+  }, [justLocked]);
+
+  // CRITICAL: Card is filtered out during drag, so this won't render
+  // This is defensive - if it does render during drag, don't show it
+  if (isDragging) {
+    return null;
+  }
+
+  // Only apply transform if it exists (shouldn't happen since card is filtered out)
+  const style = transform ? {
+    transform: CSS.Translate.toString(transform),
+  } : undefined;
+
+  const getCardClasses = () => {
+    // Ensure minimum 44px height for WCAG 2.5.5 AAA touch target compliance
+    // text-sm (14px) provides better readability than text-xs (12px) while staying compact
+    // Softer, more modern styling: thinner borders, softer shadows, more rounded
+    const base = 'card px-3 py-2 rounded-xl text-sm font-medium select-none min-h-[44px] flex items-center';
+    const shadow = 'shadow-[0_1px_3px_0_rgba(0,0,0,0.08),0_1px_2px_0_rgba(0,0,0,0.04)]';
+    
+    if (state === 'locked') {
+      // In solution view, locked cards that were incorrect for the player
+      // should read as "wrong": red text and red outline.
+      if (solutionRevealed && wasIncorrect) {
+        return `${base} ${shadow} bg-white border border-red-300 text-red-600`;
+      }
+
+      // Locked & correct: always use success green for text,
+      // and match the outline color to the stronger category title colors.
+      const borderColors = {
+        // Match Zone label colors: #0D9488, #9333EA, #3B82F6, #64748B
+        left: 'border-[#0D9488]',
+        right: 'border-[#9333EA]',
+        both: 'border-[#3B82F6]',
+        outside: 'border-[#64748B]',
+      } as const;
+
+      const borderClass = borderColors[zoneType as Zone] || 'border-[#3B82F6]';
+
+      return `${base} ${shadow} bg-white border ${borderClass} text-green-600`;
+    }
+
+    if (state === 'incorrect') {
+      // Incorrect cards are draggable, so add cursor styles
+      const cursorClasses = !isGameLocked ? 'cursor-grab active:cursor-grabbing hover:border-red-400/80' : '';
+      return `${base} ${shadow} incorrect bg-white border border-red-300/60 text-red-600 ${cursorClasses}`;
+    }
+    
+    return `${base} ${shadow} bg-white/95 border border-gray-200/80 text-gray-700 cursor-grab active:cursor-grabbing hover:border-gray-300/80 hover:bg-white`;
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`${getCardClasses()} ${animationClass} ${isCelebrating && state === 'locked' ? 'celebrate-pulse' : ''} ${solutionRevealed && wasIncorrect ? 'solution-float' : ''}`}
+      {...(isDraggable ? attributes : {})}
+      {...(isDraggable ? listeners : {})}
+      data-card-id={item.id}
+      data-zone={zoneType}
+    >
+      {/* After solution reveal: show X for items that were incorrect, checkmark for correct ones */}
+      {solutionRevealed && state === 'locked' && (
+        wasIncorrect ? (
+          <span className="mr-1.5 text-red-500/80 font-semibold text-base">×</span>
+        ) : (
+          <span className="mr-1.5 text-green-600/90">✓</span>
+        )
+      )}
+      {/* During play: show checkmark for correct locked items */}
+      {!solutionRevealed && state === 'locked' && <span className="mr-1.5 text-green-600/90">✓</span>}
+      {/* Show return button for incorrect items during play */}
+      {!solutionRevealed && state === 'incorrect' && (
+        <button
+          onClick={() => onReturnToPool?.(item.id)}
+          className="mr-1.5 text-base leading-none hover:opacity-70 text-red-500/80"
+          type="button"
+        >
+          ×
+        </button>
+      )}
+      {item.text}
+    </div>
+  );
+}
+

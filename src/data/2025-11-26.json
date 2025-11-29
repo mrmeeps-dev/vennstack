@@ -1,0 +1,87 @@
+{
+  "id": "2025-11-26",
+  "date": {
+    "year": 2025,
+    "month": 11,
+    "day": 26,
+    "dayOfWeek": 3
+  },
+  "difficulty": 2,
+  "difficultyLabel": "Medium",
+  "rules": {
+    "left": "African Countries",
+    "right": "Countries on the Equator"
+  },
+  "items": [
+    {
+      "id": "1",
+      "text": "Egypt",
+      "zone": "left",
+      "explanation": "Fits Category A only."
+    },
+    {
+      "id": "2",
+      "text": "Morocco",
+      "zone": "left",
+      "explanation": "Fits Category A only."
+    },
+    {
+      "id": "3",
+      "text": "Ecuador",
+      "zone": "right",
+      "explanation": "Fits Category B only."
+    },
+    {
+      "id": "4",
+      "text": "Brazil",
+      "zone": "right",
+      "explanation": "Fits Category B only."
+    },
+    {
+      "id": "5",
+      "text": "Indonesia",
+      "zone": "right",
+      "explanation": "Fits Category B only."
+    },
+    {
+      "id": "6",
+      "text": "Kenya",
+      "zone": "both",
+      "explanation": "Fits both categories."
+    },
+    {
+      "id": "7",
+      "text": "Gabon",
+      "zone": "both",
+      "explanation": "Fits both categories."
+    },
+    {
+      "id": "8",
+      "text": "Uganda",
+      "zone": "both",
+      "explanation": "Fits both categories."
+    },
+    {
+      "id": "9",
+      "text": "Germany",
+      "zone": "outside",
+      "explanation": "Fits neither category."
+    },
+    {
+      "id": "10",
+      "text": "Japan",
+      "zone": "outside",
+      "explanation": "Fits neither category."
+    }
+  ],
+  "distribution": {
+    "left": 2,
+    "right": 3,
+    "both": 3,
+    "outside": 2
+  },
+  "metadata": {
+    "generatedBy": "AI",
+    "validated": true
+  }
+}

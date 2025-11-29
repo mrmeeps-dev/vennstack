@@ -1,396 +1,315 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { PuzzleData, Zone, GameState, GameActions } from '../types/game';
 import { playLockSound } from '../utils/audio';
+import { calculateInsertPosition } from '../utils/insertionCalculator';
 
-// Custom arrayMove function for reordering items within zones
-const arrayMove = <T>(array: T[], from: number, to: number): T[] => {
-  const newArray = [...array];
-  const [removed] = newArray.splice(from, 1);
-  newArray.splice(to, 0, removed);
-  return newArray;
-};
+interface LockedState {
+  itemPlacements: Record<string, Zone>;
+  zoneOrder: Record<Zone, string[]>;
+  lockedItems: string[];
+  revealedRules: { left: boolean; right: boolean };
+}
 
-export function useVennEngine(puzzleData: PuzzleData): GameState & GameActions {
-  const [lockedItems, setLockedItems] = useState<Set<string>>(new Set());
-  const [itemPlacements, setItemPlacements] = useState<Map<string, Zone>>(new Map());
-  const [zoneOrder, setZoneOrder] = useState<Map<Zone, string[]>>(new Map([
-    ['left', []],
-    ['right', []],
-    ['both', []],
-    ['outside', []],
-  ]));
-  const [revealedRules, setRevealedRules] = useState({
-    left: false,
-    right: false,
+export function useVennEngine(
+  puzzleData: PuzzleData,
+  isCompleted: boolean = false,
+  lockedState?: LockedState
+): GameState & GameActions {
+  // Initialize state from locked state if puzzle is completed
+  const [lockedItems, setLockedItems] = useState<Set<string>>(() => {
+    if (isCompleted && lockedState) {
+      return new Set(lockedState.lockedItems);
+    }
+    return new Set();
   });
   
-  // Track pending placements to prevent duplicate calls from React StrictMode
-  // Use a Set for synchronous O(1) checking
-  const pendingPlacementsRef = useRef<Set<string>>(new Set());
+  const [itemPlacements, setItemPlacements] = useState<Map<string, Zone>>(() => {
+    if (isCompleted && lockedState) {
+      return new Map(Object.entries(lockedState.itemPlacements));
+    }
+    return new Map();
+  });
   
-  // Global counter for tracking state updates (for debugging)
-  const updateCounterRef = useRef(0);
+  const [zoneOrder, setZoneOrder] = useState<Map<Zone, string[]>>(() => {
+    if (isCompleted && lockedState) {
+      const order = new Map<Zone, string[]>();
+      Object.entries(lockedState.zoneOrder).forEach(([zone, items]) => {
+        order.set(zone as Zone, items);
+      });
+      return order;
+    }
+    return new Map([
+      ['left', []],
+      ['right', []],
+      ['both', []],
+      ['outside', []],
+    ]);
+  });
+  
+  const [revealedRules, setRevealedRules] = useState(() => {
+    if (isCompleted && lockedState) {
+      return lockedState.revealedRules;
+    }
+    return { left: false, right: false };
+  });
+
+  useEffect(() => {
+    // Only reset if puzzle is not completed
+    if (!isCompleted) {
+      setLockedItems(new Set());
+      setItemPlacements(new Map());
+      setZoneOrder(new Map([['left', []], ['right', []], ['both', []], ['outside', []]]));
+      setRevealedRules({ left: false, right: false });
+    } else if (lockedState) {
+      // Restore locked state if puzzle is completed and state exists
+      setLockedItems(new Set(lockedState.lockedItems));
+      setItemPlacements(new Map(Object.entries(lockedState.itemPlacements)));
+      const order = new Map<Zone, string[]>();
+      Object.entries(lockedState.zoneOrder).forEach(([zone, items]) => {
+        order.set(zone as Zone, items);
+      });
+      setZoneOrder(order);
+      setRevealedRules(lockedState.revealedRules);
+    } else if (isCompleted && !lockedState) {
+      // If puzzle is completed but no locked state exists (old completion),
+      // auto-place all items in their correct zones
+      const placements = new Map<string, Zone>();
+      const orders = new Map<Zone, string[]>([
+        ['left', []], ['right', []], ['both', []], ['outside', []]
+      ]);
+      const locked = new Set<string>();
+
+      puzzleData.items.forEach(item => {
+        placements.set(item.id, item.zone);
+        orders.get(item.zone)!.push(item.id);
+        locked.add(item.id);
+      });
+
+      setItemPlacements(placements);
+      setZoneOrder(orders);
+      setLockedItems(locked);
+      setRevealedRules({ left: true, right: true });
+    }
+  }, [puzzleData.id, puzzleData.items, isCompleted, lockedState]);
 
   const placeItem = useCallback((itemId: string, targetZone: Zone, insertAfterId?: string | null) => {
-    // CRITICAL: Synchronous lock check FIRST - before any logging or state access
-    // This prevents React StrictMode from causing duplicate placements
-    if (pendingPlacementsRef.current.has(itemId)) {
-      // Already processing this item - skip silently (no console logs to avoid noise)
-      console.warn(`⚠️ placeItem: Item ${itemId} already being placed, skipping duplicate call`);
-      return;
-    }
+    // Prevent changes if puzzle is completed
+    if (isCompleted) return;
     
-    // Mark as pending synchronously (BEFORE any state access or logging)
-    pendingPlacementsRef.current.add(itemId);
-    
-    // Increment update counter and capture update ID for debugging
-    updateCounterRef.current += 1;
-    const updateId = updateCounterRef.current;
-    
-    // CRITICAL: Update both states using functional updates
-    // React will batch these updates, but we need to ensure they're both based on current state
-    
-    // Update itemPlacements first
-    setItemPlacements(prevPlacements => {
-      const oldZone = prevPlacements.get(itemId);
-      
-      // Early exit: if item is already in target zone and not a reorder, skip
-      if (oldZone === targetZone && insertAfterId === undefined) {
-        // Item already in target zone - clear lock and return early
-        pendingPlacementsRef.current.delete(itemId);
-        return prevPlacements;
-      }
-      
-      const nextPlacements = new Map(prevPlacements);
-      // CRITICAL: The Map.set() will overwrite any existing entry for this itemId
-      // This ensures the item can only be in ONE zone in itemPlacements
-      nextPlacements.set(itemId, targetZone);
-      return nextPlacements;
-    });
+    setItemPlacements(prev => new Map(prev).set(itemId, targetZone));
 
-    // Update zoneOrder - this will be batched with the itemPlacements update
-    // CRITICAL: Remove from ALL zones first, then add to target zone
-    // This ensures no duplicates exist during the update
-    setZoneOrder(prevOrder => {
-      const nextOrder = new Map(prevOrder);
+    setZoneOrder(prev => {
+      const next = new Map(prev);
       
-      // A. Remove from ALL zones first (defensive cleanup)
-      // This ensures the item is removed from any zone it might be in
-      for (const zone of nextOrder.keys()) {
-        const zoneArray = nextOrder.get(zone) || [];
-        if (zoneArray.includes(itemId)) {
-          nextOrder.set(zone, zoneArray.filter(id => id !== itemId));
-        }
+      // Remove from all zones
+      for (const [zone, order] of next.entries()) {
+        next.set(zone, order.filter(id => id !== itemId));
       }
       
-      // B. Clean the target zone's order array before insertion
-      // This handles reordering within the same zone or ensures clean insertion
-      const cleanedTargetOrder = (nextOrder.get(targetZone) || []).filter(id => id !== itemId);
+      const targetOrder = next.get(targetZone) || [];
       
-      // C. Calculate final order using cleanedTargetOrder as the base
-      let finalOrder: string[];
       if (insertAfterId === null) {
-        // Insert at the beginning
-        finalOrder = [itemId, ...cleanedTargetOrder];
+        next.set(targetZone, [itemId, ...targetOrder]);
       } else if (insertAfterId !== undefined) {
-        // Insert after the specified item
-        const insertIndex = cleanedTargetOrder.findIndex(id => id === insertAfterId);
-        if (insertIndex >= 0) {
-          const newOrder = [...cleanedTargetOrder];
-          newOrder.splice(insertIndex + 1, 0, itemId);
-          finalOrder = newOrder;
-        } else {
-          // If insertAfterId not found, append to end
-          finalOrder = [...cleanedTargetOrder, itemId];
-        }
+        const insertIndex = targetOrder.indexOf(insertAfterId);
+        const newOrder = [...targetOrder];
+        newOrder.splice(insertIndex + 1, 0, itemId);
+        next.set(targetZone, newOrder);
       } else {
-        // Append to end (default behavior)
-        finalOrder = [...cleanedTargetOrder, itemId];
+        next.set(targetZone, [...targetOrder, itemId]);
       }
       
-      nextOrder.set(targetZone, finalOrder);
-      
-      // Validation: Ensure item is only in target zone
-      const zonesAfter: Zone[] = [];
-      for (const [zone, order] of nextOrder.entries()) {
-        if (order.includes(itemId)) {
-          zonesAfter.push(zone);
-        }
-      }
-      
-      if (zonesAfter.length > 1) {
-        console.error(`[${updateId}] ❌ CORRUPTION DETECTED: ${itemId} duplicated in zones:`, zonesAfter);
-        // Force fix: keep only in target zone
-        for (const zone of zonesAfter) {
-          if (zone !== targetZone) {
-            const order = nextOrder.get(zone) || [];
-            nextOrder.set(zone, order.filter(id => id !== itemId));
-          }
-        }
-      } else if (zonesAfter.length === 1 && zonesAfter[0] !== targetZone) {
-        console.error(`[${updateId}] ❌ MISMATCH: ${itemId} in wrong zone. Expected: ${targetZone}, Got: ${zonesAfter[0]}`);
-      }
-      
-      // Clear pending placement after zoneOrder update completes
-      pendingPlacementsRef.current.delete(itemId);
-      
-      return nextOrder;
+      return next;
     });
   }, []);
 
   const removeItem = useCallback((itemId: string) => {
-    // Increment update counter and capture update ID for debugging
-    updateCounterRef.current += 1;
-    const updateId = updateCounterRef.current;
+    // Prevent changes if puzzle is completed
+    if (isCompleted) return;
     
     setItemPlacements(prev => {
       const next = new Map(prev);
-      const zone = prev.get(itemId);
       next.delete(itemId);
       return next;
     });
 
-    // Remove from zone order - CRITICAL: Use robust cleanup logic
     setZoneOrder(prev => {
       const next = new Map(prev);
-      
-      // --- DEEP LOGGING BEFORE UPDATE ---
-      const zonesBefore: Zone[] = [];
-      for (const [zone, order] of prev.entries()) {
-        if (order.includes(itemId)) {
-          zonesBefore.push(zone);
-        }
-      }
-      console.log(`[${updateId}] 🔍 PRE-UPDATE: ${itemId} in:`, zonesBefore);
-      // ----------------------------------
-      
-      // CRITICAL FIX: Iterate over next.keys() (the map we're building) instead of prev.entries()
-      // This ensures we're always working with the current state, not stale previous state
-      // This prevents race conditions when setZoneOrder is called multiple times rapidly
-      for (const zone of next.keys()) {
-        const order = next.get(zone) || [];
-        // Use filter to remove item from ALL zone arrays in the current 'next' map
-        if (order.includes(itemId)) {
-          next.set(zone, order.filter(id => id !== itemId));
-        }
-      }
-      
-      // --- DEEP LOGGING AFTER UPDATE ---
-      const zonesAfter: Zone[] = [];
       for (const [zone, order] of next.entries()) {
-        if (order.includes(itemId)) {
-          zonesAfter.push(zone);
-        }
+        next.set(zone, order.filter(id => id !== itemId));
       }
-      console.log(`[${updateId}] ✅ POST-UPDATE: ${itemId} in:`, zonesAfter);
-      if (zonesAfter.length > 0) {
-        console.error(`[${updateId}] ❌ CORRUPTION DETECTED: ${itemId} still in zones after removeItem:`, zonesAfter);
-        // Force cleanup
-        for (const zone of zonesAfter) {
-          const order = next.get(zone) || [];
-          next.set(zone, order.filter(id => id !== itemId));
-        }
-        // Log after fix
-        const afterFixZones: Zone[] = [];
-        for (const [zone, order] of next.entries()) {
-          if (order.includes(itemId)) {
-            afterFixZones.push(zone);
-          }
-        }
-        console.log(`[${updateId}] 🔧 After corruption fix: ${itemId} in:`, afterFixZones);
-      }
-      // ----------------------------------
-      
       return next;
     });
   }, []);
 
-  const reorderItemsInZone = useCallback((zone: Zone, activeId: string, overId: string) => {
-    // Increment update counter and capture update ID for debugging
-    updateCounterRef.current += 1;
-    const updateId = updateCounterRef.current;
+
+  const validatePuzzle = useCallback(() => {
+    // Prevent validation if puzzle is completed
+    if (isCompleted) {
+      return { correct: [], incorrect: [] };
+    }
     
-    setZoneOrder(prev => {
-      const next = new Map(prev);
-      
-      // --- DEEP LOGGING BEFORE UPDATE ---
-      const zonesBefore: Zone[] = [];
-      for (const [z, order] of prev.entries()) {
-        if (order.includes(activeId)) {
-          zonesBefore.push(z);
-        }
-      }
-      console.log(`[${updateId}] 🔍 PRE-UPDATE: ${activeId} in:`, zonesBefore);
-      // ----------------------------------
-      
-      const zoneOrder = prev.get(zone) || [];
-      const oldIndex = zoneOrder.indexOf(activeId);
-      const newIndex = zoneOrder.indexOf(overId);
-      
-      if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
-        const newOrder = arrayMove(zoneOrder, oldIndex, newIndex);
-        next.set(zone, newOrder);
-      }
-      
-      // --- DEEP LOGGING AFTER UPDATE ---
-      const zonesAfter: Zone[] = [];
-      for (const [z, order] of next.entries()) {
-        if (order.includes(activeId)) {
-          zonesAfter.push(z);
-        }
-      }
-      console.log(`[${updateId}] ✅ POST-UPDATE: ${activeId} in:`, zonesAfter);
-      if (zonesAfter.length > 1) {
-        console.error(`[${updateId}] ❌ CORRUPTION DETECTED: ${activeId} duplicated in zones:`, zonesAfter);
-        // Force fix: keep only in target zone
-        for (const z of zonesAfter) {
-          if (z !== zone) {
-            const order = next.get(z) || [];
-            next.set(z, order.filter(id => id !== activeId));
-          }
-        }
-        // Log after fix
-        const afterFixZones: Zone[] = [];
-        for (const [z, order] of next.entries()) {
-          if (order.includes(activeId)) {
-            afterFixZones.push(z);
-          }
-        }
-        console.log(`[${updateId}] 🔧 After corruption fix: ${activeId} in:`, afterFixZones);
-      }
-      // ----------------------------------
-      
-      return next;
-    });
-  }, []);
-
-  const validatePuzzle = useCallback((): { correct: string[]; incorrect: string[] } => {
     const correct: string[] = [];
     const incorrect: string[] = [];
 
     puzzleData.items.forEach(item => {
       const placedZone = itemPlacements.get(item.id);
-      if (placedZone === undefined) {
-        // Item not placed yet - skip
-        return;
-      }
+      if (!placedZone) return;
 
       if (placedZone === item.zone) {
         correct.push(item.id);
-        // Lock correct items
-        setLockedItems(prev => {
-          const next = new Set(prev);
-          next.add(item.id);
-          return next;
-        });
+        setLockedItems(prev => new Set(prev).add(item.id));
         playLockSound();
       } else {
         incorrect.push(item.id);
-        // Keep incorrect items in place - don't remove from placements
-        // They'll show error state and can be moved by the user
       }
     });
 
-    // Check rule discovery after validation
-    setRevealedRules(currentRules => {
-      const updated = { ...currentRules };
+    // Check rule discovery
+    setRevealedRules(prev => {
       const updatedLocked = new Set(lockedItems);
       correct.forEach(id => updatedLocked.add(id));
       
-      // Check if 3 items are locked in left zone (Set A only)
-      const leftLockedCount = puzzleData.items.filter(
+      const leftCount = puzzleData.items.filter(
         item => item.zone === 'left' && updatedLocked.has(item.id)
       ).length;
-      
-      if (leftLockedCount >= 3 && !updated.left) {
-        updated.left = true;
-      }
-      
-      // Check if 3 items are locked in right zone (Set B only)
-      const rightLockedCount = puzzleData.items.filter(
+      const rightCount = puzzleData.items.filter(
         item => item.zone === 'right' && updatedLocked.has(item.id)
       ).length;
-      
-      if (rightLockedCount >= 3 && !updated.right) {
-        updated.right = true;
-      }
-      
-      return updated;
+
+      return {
+        left: prev.left || leftCount >= 3,
+        right: prev.right || rightCount >= 3
+      };
     });
 
     return { correct, incorrect };
-  }, [puzzleData, itemPlacements, lockedItems]);
+  }, [puzzleData, itemPlacements, lockedItems, isCompleted]);
 
-  const checkRuleDiscovery = useCallback(() => {
-    setRevealedRules(prev => {
-      const next = { ...prev };
-      
-      // Check if 3 items are locked in left zone (Set A only)
-      const leftLockedCount = puzzleData.items.filter(
-        item => item.zone === 'left' && lockedItems.has(item.id)
-      ).length;
-      
-      if (leftLockedCount >= 3 && !next.left) {
-        next.left = true;
-      }
-      
-      // Check if 3 items are locked in right zone (Set B only)
-      const rightLockedCount = puzzleData.items.filter(
-        item => item.zone === 'right' && lockedItems.has(item.id)
-      ).length;
-      
-      if (rightLockedCount >= 3 && !next.right) {
-        next.right = true;
-      }
-      
-      return next;
-    });
-  }, [puzzleData, lockedItems]);
 
   const autoPlaceAllItems = useCallback(() => {
-    // Place all items in their correct zones
-    setItemPlacements(prev => {
-      const next = new Map(prev);
-      puzzleData.items.forEach(item => {
-        next.set(item.id, item.zone);
-      });
-      return next;
+    const placements = new Map<string, Zone>();
+    const orders = new Map<Zone, string[]>([
+      ['left', []], ['right', []], ['both', []], ['outside', []]
+    ]);
+
+    puzzleData.items.forEach(item => {
+      placements.set(item.id, item.zone);
+      orders.get(item.zone)!.push(item.id);
     });
-    
-    // Set zone order to match puzzle data order
-    setZoneOrder(prev => {
-      const next = new Map(prev);
-      const leftItems: string[] = [];
-      const rightItems: string[] = [];
-      const bothItems: string[] = [];
-      const outsideItems: string[] = [];
-      
-      puzzleData.items.forEach(item => {
-        if (item.zone === 'left') leftItems.push(item.id);
-        else if (item.zone === 'right') rightItems.push(item.id);
-        else if (item.zone === 'both') bothItems.push(item.id);
-        else if (item.zone === 'outside') outsideItems.push(item.id);
-      });
-      
-      next.set('left', leftItems);
-      next.set('right', rightItems);
-      next.set('both', bothItems);
-      next.set('outside', outsideItems);
-      
-      return next;
-    });
-    
-    // Lock all items (they're all in correct positions now)
-    setLockedItems(prev => {
-      const next = new Set(prev);
-      puzzleData.items.forEach(item => {
-        next.add(item.id);
-      });
-      return next;
-    });
-    // Reveal all rules
+
+    setItemPlacements(placements);
+    setZoneOrder(orders);
+    setLockedItems(new Set(puzzleData.items.map(i => i.id)));
     setRevealedRules({ left: true, right: true });
   }, [puzzleData]);
+
+  const handleDrop = useCallback((event: any, mousePosition?: { x: number; y: number } | null) => {
+    const { active, over } = event;
+    
+    if (!over) {
+      removeItem(active.id as string);
+      return;
+    }
+
+    const dropData = over.data.current;
+    
+    if (dropData.zone === 'word-pool') {
+      removeItem(active.id as string);
+      return;
+    }
+
+    // Calculate insertion position based on mouse coordinates
+    let dropPoint: { x: number; y: number };
+    
+    if (mousePosition) {
+      dropPoint = mousePosition;
+    } else {
+      // Fall back to center of zone
+      const zoneElement = document.querySelector(`[data-zone="${dropData.zone}"]`);
+      if (zoneElement) {
+        const rect = zoneElement.getBoundingClientRect();
+        dropPoint = {
+          x: rect.left + rect.width / 2,
+          y: rect.top + rect.height / 2
+        };
+      } else {
+        // Can't calculate, append to end
+        placeItem(active.id as string, dropData.zone as Zone, undefined);
+        return;
+      }
+    }
+
+    const insertAfterId = calculateInsertPosition(
+      dropData.zone,
+      dropPoint,
+      active.id as string
+    );
+
+    placeItem(active.id as string, dropData.zone as Zone, insertAfterId);
+  }, [placeItem, removeItem]);
+
+  const revealOneHint = useCallback(() => {
+    // Prevent hints if puzzle is completed
+    if (isCompleted) return null;
+    
+    // Consider only cards that are already placed on the board (not in the pool),
+    // not yet locked. Prefer incorrect placements, but fall back to any placed card
+    // so a single correct placed card can still be locked as a hint.
+    const placedNotLocked = puzzleData.items.filter(item => {
+      const placedZone = itemPlacements.get(item.id);
+      return (
+        placedZone !== undefined &&
+        placedZone !== null &&
+        placedZone !== 'outside' &&
+        !lockedItems.has(item.id)
+      );
+    });
+
+    if (placedNotLocked.length === 0) {
+      return null;
+    }
+
+    const incorrectPlaced = placedNotLocked.filter(item => {
+      const placedZone = itemPlacements.get(item.id);
+      return placedZone !== item.zone;
+    });
+
+    const pool = incorrectPlaced.length > 0 ? incorrectPlaced : placedNotLocked;
+    const target = pool[0];
+    const itemId = target.id;
+
+    // Move item to its correct zone
+    placeItem(itemId, target.zone, undefined);
+
+    // Lock it in place and play sound
+    setLockedItems(prev => {
+      const next = new Set(prev);
+      next.add(itemId);
+      return next;
+    });
+    playLockSound();
+
+    // Update rule reveal state to count this hinted item
+    setRevealedRules(prev => {
+      const updatedLocked = new Set(lockedItems);
+      updatedLocked.add(itemId);
+
+      const leftCount = puzzleData.items.filter(
+        item => item.zone === 'left' && updatedLocked.has(item.id)
+      ).length;
+      const rightCount = puzzleData.items.filter(
+        item => item.zone === 'right' && updatedLocked.has(item.id)
+      ).length;
+
+      return {
+        left: prev.left || leftCount >= 3,
+        right: prev.right || rightCount >= 3
+      };
+    });
+
+    return itemId;
+  }, [itemPlacements, lockedItems, placeItem, puzzleData, isCompleted]);
 
   return {
     puzzle: puzzleData,
@@ -398,13 +317,11 @@ export function useVennEngine(puzzleData: PuzzleData): GameState & GameActions {
     itemPlacements,
     zoneOrder,
     revealedRules,
-    phase: 'investigation' as const,
     placeItem,
     removeItem,
     validatePuzzle,
-    checkRuleDiscovery,
     autoPlaceAllItems,
-    reorderItemsInZone,
+    handleDrop,
+    revealOneHint
   };
 }
-

@@ -1,0 +1,87 @@
+{
+  "id": "2025-12-05",
+  "date": {
+    "year": 2025,
+    "month": 12,
+    "day": 5,
+    "dayOfWeek": 5
+  },
+  "difficulty": 3,
+  "difficultyLabel": "Hard",
+  "rules": {
+    "left": "Kitchen Items",
+    "right": "Sharp Things"
+  },
+  "items": [
+    {
+      "id": "1",
+      "text": "Refrigerator",
+      "zone": "left",
+      "explanation": "Fits Category A only."
+    },
+    {
+      "id": "2",
+      "text": "Oven",
+      "zone": "left",
+      "explanation": "Fits Category A only."
+    },
+    {
+      "id": "3",
+      "text": "Spoon",
+      "zone": "left",
+      "explanation": "Fits Category A only."
+    },
+    {
+      "id": "4",
+      "text": "Sword",
+      "zone": "right",
+      "explanation": "Fits Category B only."
+    },
+    {
+      "id": "5",
+      "text": "Needle",
+      "zone": "right",
+      "explanation": "Fits Category B only."
+    },
+    {
+      "id": "6",
+      "text": "Knife",
+      "zone": "both",
+      "explanation": "Fits both categories."
+    },
+    {
+      "id": "7",
+      "text": "Grater",
+      "zone": "both",
+      "explanation": "Fits both categories."
+    },
+    {
+      "id": "8",
+      "text": "Blender",
+      "zone": "both",
+      "explanation": "Fits both categories."
+    },
+    {
+      "id": "9",
+      "text": "Pillow",
+      "zone": "outside",
+      "explanation": "Fits neither category."
+    },
+    {
+      "id": "10",
+      "text": "Ball",
+      "zone": "outside",
+      "explanation": "Fits neither category."
+    }
+  ],
+  "distribution": {
+    "left": 3,
+    "right": 2,
+    "both": 3,
+    "outside": 2
+  },
+  "metadata": {
+    "generatedBy": "AI",
+    "validated": true
+  }
+}

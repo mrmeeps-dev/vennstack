@@ -36,7 +36,6 @@ export function Menu({ isOpen, onClose, onNavigate }: MenuProps) {
     if (onNavigate) {
       onNavigate(item);
     } else {
-      console.log(`Menu item clicked: ${item}`);
       onClose();
     }
   };

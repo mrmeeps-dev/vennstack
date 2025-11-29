@@ -1,17 +1,21 @@
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Target, TrendingUp, Award, Trophy, Flame, BarChart3, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Target, TrendingUp, Award, Trophy, Flame, BarChart3 } from 'lucide-react';
 import { useStats } from '../hooks/useStats';
 
 interface StatsProps {
   isOpen: boolean;
   onBack: () => void;
+  onReset?: () => void; // Optional callback when stats are reset
 }
 
 export function Stats({
   isOpen,
   onBack,
+  onReset,
 }: StatsProps) {
-  const { stats } = useStats();
+  const { stats, resetStats } = useStats();
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
 
   const handleBackdropClick = () => {
     onBack();
@@ -109,7 +113,7 @@ export function Stats({
                     initial={{ width: 0 }}
                     animate={{ width: `${completionRate}%` }}
                     transition={{ duration: 0.5, ease: 'easeOut' }}
-                    className="h-full bg-gradient-to-r from-[#06B6D4] to-[#0891B2] rounded-full"
+                    className="h-full bg-[#B2EBF2] rounded-full"
                   />
                 </div>
               </div>
@@ -154,21 +158,47 @@ export function Stats({
             </div>
           </div>
 
-          {/* Today's Progress */}
-          {stats.puzzlesCompletedToday > 0 && (
-            <div>
-              <h3 className="text-xs font-semibold text-slate-600 mb-2 uppercase tracking-wide">Today</h3>
-              <div className="bg-gradient-to-r from-[#06B6D4] to-[#0891B2] rounded-lg p-3 text-white">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-[10px] font-medium opacity-90 mb-0.5">Completed Today</div>
-                    <div className="text-2xl font-bold leading-tight">{stats.puzzlesCompletedToday}</div>
-                  </div>
-                  <CheckCircle2 size={24} className="opacity-80" />
+          {/* Reset Stats Button */}
+          <div className="pt-4 border-t border-slate-200">
+            {!showResetConfirm ? (
+              <button
+                type="button"
+                onClick={() => setShowResetConfirm(true)}
+                className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-red-300 text-red-700 hover:bg-red-50 transition-colors"
+              >
+                Reset Your Stats
+              </button>
+            ) : (
+              <div className="space-y-2">
+                <p className="text-xs text-slate-600 text-center mb-2">
+                  Are you sure? This will delete all your stats and progress. This cannot be undone.
+                </p>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      resetStats();
+                      // Call optional callback to clear other app state
+                      if (onReset) {
+                        onReset();
+                      }
+                      setShowResetConfirm(false);
+                    }}
+                    className="flex-1 text-xs font-semibold px-3 py-2 rounded-xl bg-red-600 text-white hover:bg-red-700 transition-colors"
+                  >
+                    Yes, Reset
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowResetConfirm(false)}
+                    className="flex-1 text-xs font-semibold px-3 py-2 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-50 transition-colors"
+                  >
+                    Cancel
+                  </button>
                 </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
           </div>
           </motion.div>

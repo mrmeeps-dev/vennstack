@@ -138,13 +138,13 @@ export function EndGameModal({
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.6 }}
                     onClick={onClose}
-                    className={`w-full py-3 rounded-full font-semibold text-white transition-colors ${
+                    className={`w-full py-3 rounded-full font-semibold transition-colors ${
                       isSuccess
-                        ? 'bg-[#06B6D4] hover:bg-[#0891B2]'
-                        : 'bg-slate-600 hover:bg-slate-700'
+                        ? 'bg-[#B2EBF2] hover:bg-[#80DEEA] text-slate-800'
+                        : 'bg-slate-600 hover:bg-slate-700 text-white'
                     }`}
                   >
-                    {isSuccess ? 'Play Again' : 'View Solution'}
+                    {isSuccess ? 'Done for Today' : 'View Solution'}
                   </motion.button>
                 )}
               </div>

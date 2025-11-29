@@ -1,0 +1,87 @@
+{
+  "id": "2025-11-28",
+  "date": {
+    "year": 2025,
+    "month": 11,
+    "day": 28,
+    "dayOfWeek": 5
+  },
+  "difficulty": 3,
+  "difficultyLabel": "Hard",
+  "rules": {
+    "left": "Things You Wear",
+    "right": "Made of Leather"
+  },
+  "items": [
+    {
+      "id": "1",
+      "text": "T-shirt",
+      "zone": "left",
+      "explanation": "Fits Category A only."
+    },
+    {
+      "id": "2",
+      "text": "Socks",
+      "zone": "left",
+      "explanation": "Fits Category A only."
+    },
+    {
+      "id": "3",
+      "text": "Wallet",
+      "zone": "right",
+      "explanation": "Fits Category B only."
+    },
+    {
+      "id": "4",
+      "text": "Sofa",
+      "zone": "right",
+      "explanation": "Fits Category B only."
+    },
+    {
+      "id": "5",
+      "text": "Belt",
+      "zone": "both",
+      "explanation": "Fits both categories."
+    },
+    {
+      "id": "6",
+      "text": "Boots",
+      "zone": "both",
+      "explanation": "Fits both categories."
+    },
+    {
+      "id": "7",
+      "text": "Jacket",
+      "zone": "both",
+      "explanation": "Fits both categories."
+    },
+    {
+      "id": "8",
+      "text": "Paper",
+      "zone": "outside",
+      "explanation": "Fits neither category."
+    },
+    {
+      "id": "9",
+      "text": "Glass",
+      "zone": "outside",
+      "explanation": "Fits neither category."
+    },
+    {
+      "id": "10",
+      "text": "Cotton",
+      "zone": "outside",
+      "explanation": "Fits neither category."
+    }
+  ],
+  "distribution": {
+    "left": 2,
+    "right": 2,
+    "both": 3,
+    "outside": 3
+  },
+  "metadata": {
+    "generatedBy": "AI",
+    "validated": true
+  }
+}

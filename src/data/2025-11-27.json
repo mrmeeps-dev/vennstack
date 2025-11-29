@@ -1,0 +1,87 @@
+{
+  "id": "2025-11-27",
+  "date": {
+    "year": 2025,
+    "month": 11,
+    "day": 27,
+    "dayOfWeek": 4
+  },
+  "difficulty": 3,
+  "difficultyLabel": "Hard",
+  "rules": {
+    "left": "Things with a Handle",
+    "right": "Things that Hold Water"
+  },
+  "items": [
+    {
+      "id": "1",
+      "text": "Suitcase",
+      "zone": "left",
+      "explanation": "Fits Category A only."
+    },
+    {
+      "id": "2",
+      "text": "Door",
+      "zone": "left",
+      "explanation": "Fits Category A only."
+    },
+    {
+      "id": "3",
+      "text": "Saw",
+      "zone": "left",
+      "explanation": "Fits Category A only."
+    },
+    {
+      "id": "4",
+      "text": "Lake",
+      "zone": "right",
+      "explanation": "Fits Category B only."
+    },
+    {
+      "id": "5",
+      "text": "Swimming Pool",
+      "zone": "right",
+      "explanation": "Fits Category B only."
+    },
+    {
+      "id": "6",
+      "text": "Mug",
+      "zone": "both",
+      "explanation": "Fits both categories."
+    },
+    {
+      "id": "7",
+      "text": "Bucket",
+      "zone": "both",
+      "explanation": "Fits both categories."
+    },
+    {
+      "id": "8",
+      "text": "Pitcher",
+      "zone": "both",
+      "explanation": "Fits both categories."
+    },
+    {
+      "id": "9",
+      "text": "Pillow",
+      "zone": "outside",
+      "explanation": "Fits neither category."
+    },
+    {
+      "id": "10",
+      "text": "Book",
+      "zone": "outside",
+      "explanation": "Fits neither category."
+    }
+  ],
+  "distribution": {
+    "left": 3,
+    "right": 2,
+    "both": 3,
+    "outside": 2
+  },
+  "metadata": {
+    "generatedBy": "AI",
+    "validated": true
+  }
+}

@@ -10,7 +10,7 @@ interface ConfettiParticle {
   size: number;
 }
 
-const colors = ['#06B6D4', '#14B8A6', '#A855F7', '#60A5FA', '#86EFAC', '#FCD34D', '#FB7185'];
+const colors = ['#B2EBF2', '#14B8A6', '#A855F7', '#60A5FA', '#86EFAC', '#FCD34D', '#FB7185'];
 
 interface ConfettiProps {
   isActive: boolean;
@@ -80,6 +80,11 @@ export function Confetti({ isActive }: ConfettiProps) {
     </div>
   );
 }
+
+
+
+
+
 
 
 

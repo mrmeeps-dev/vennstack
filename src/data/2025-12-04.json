@@ -1,0 +1,87 @@
+{
+  "id": "2025-12-04",
+  "date": {
+    "year": 2025,
+    "month": 12,
+    "day": 4,
+    "dayOfWeek": 4
+  },
+  "difficulty": 3,
+  "difficultyLabel": "Hard",
+  "rules": {
+    "left": "Things with Keys",
+    "right": "Things with a Screen"
+  },
+  "items": [
+    {
+      "id": "1",
+      "text": "Piano",
+      "zone": "left",
+      "explanation": "Fits Category A only."
+    },
+    {
+      "id": "2",
+      "text": "Door",
+      "zone": "left",
+      "explanation": "Fits Category A only."
+    },
+    {
+      "id": "3",
+      "text": "Television",
+      "zone": "right",
+      "explanation": "Fits Category B only."
+    },
+    {
+      "id": "4",
+      "text": "Cinema",
+      "zone": "right",
+      "explanation": "Fits Category B only."
+    },
+    {
+      "id": "5",
+      "text": "Laptop",
+      "zone": "both",
+      "explanation": "Fits both categories."
+    },
+    {
+      "id": "6",
+      "text": "Smartphone",
+      "zone": "both",
+      "explanation": "Fits both categories."
+    },
+    {
+      "id": "7",
+      "text": "ATM",
+      "zone": "both",
+      "explanation": "Fits both categories."
+    },
+    {
+      "id": "8",
+      "text": "Bottle",
+      "zone": "outside",
+      "explanation": "Fits neither category."
+    },
+    {
+      "id": "9",
+      "text": "Shoe",
+      "zone": "outside",
+      "explanation": "Fits neither category."
+    },
+    {
+      "id": "10",
+      "text": "Chair",
+      "zone": "outside",
+      "explanation": "Fits neither category."
+    }
+  ],
+  "distribution": {
+    "left": 2,
+    "right": 2,
+    "both": 3,
+    "outside": 3
+  },
+  "metadata": {
+    "generatedBy": "AI",
+    "validated": true
+  }
+}

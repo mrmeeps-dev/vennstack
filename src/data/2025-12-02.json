@@ -1,0 +1,87 @@
+{
+  "id": "2025-12-02",
+  "date": {
+    "year": 2025,
+    "month": 12,
+    "day": 2,
+    "dayOfWeek": 2
+  },
+  "difficulty": 2,
+  "difficultyLabel": "Medium",
+  "rules": {
+    "left": "US Presidents",
+    "right": "People on US Currency"
+  },
+  "items": [
+    {
+      "id": "1",
+      "text": "Obama",
+      "zone": "left",
+      "explanation": "Fits Category A only."
+    },
+    {
+      "id": "2",
+      "text": "Clinton",
+      "zone": "left",
+      "explanation": "Fits Category A only."
+    },
+    {
+      "id": "3",
+      "text": "Hamilton",
+      "zone": "right",
+      "explanation": "Fits Category B only."
+    },
+    {
+      "id": "4",
+      "text": "Franklin",
+      "zone": "right",
+      "explanation": "Fits Category B only."
+    },
+    {
+      "id": "5",
+      "text": "Tubman",
+      "zone": "right",
+      "explanation": "Fits Category B only."
+    },
+    {
+      "id": "6",
+      "text": "Washington",
+      "zone": "both",
+      "explanation": "Fits both categories."
+    },
+    {
+      "id": "7",
+      "text": "Lincoln",
+      "zone": "both",
+      "explanation": "Fits both categories."
+    },
+    {
+      "id": "8",
+      "text": "Grant",
+      "zone": "both",
+      "explanation": "Fits both categories."
+    },
+    {
+      "id": "9",
+      "text": "Gates",
+      "zone": "outside",
+      "explanation": "Fits neither category."
+    },
+    {
+      "id": "10",
+      "text": "Presley",
+      "zone": "outside",
+      "explanation": "Fits neither category."
+    }
+  ],
+  "distribution": {
+    "left": 2,
+    "right": 3,
+    "both": 3,
+    "outside": 2
+  },
+  "metadata": {
+    "generatedBy": "AI",
+    "validated": true
+  }
+}

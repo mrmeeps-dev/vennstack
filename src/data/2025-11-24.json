@@ -1,0 +1,87 @@
+{
+  "id": "2025-11-24",
+  "date": {
+    "year": 2025,
+    "month": 11,
+    "day": 24,
+    "dayOfWeek": 1
+  },
+  "difficulty": 1,
+  "difficultyLabel": "Easy",
+  "rules": {
+    "left": "Things that are Yellow",
+    "right": "Fruits"
+  },
+  "items": [
+    {
+      "id": "1",
+      "text": "School Bus",
+      "zone": "left",
+      "explanation": "Fits Category A only."
+    },
+    {
+      "id": "2",
+      "text": "Sun",
+      "zone": "left",
+      "explanation": "Fits Category A only."
+    },
+    {
+      "id": "3",
+      "text": "Canary",
+      "zone": "left",
+      "explanation": "Fits Category A only."
+    },
+    {
+      "id": "4",
+      "text": "Strawberry",
+      "zone": "right",
+      "explanation": "Fits Category B only."
+    },
+    {
+      "id": "5",
+      "text": "Cherry",
+      "zone": "right",
+      "explanation": "Fits Category B only."
+    },
+    {
+      "id": "6",
+      "text": "Lemon",
+      "zone": "both",
+      "explanation": "Fits both categories."
+    },
+    {
+      "id": "7",
+      "text": "Banana",
+      "zone": "both",
+      "explanation": "Fits both categories."
+    },
+    {
+      "id": "8",
+      "text": "Pineapple",
+      "zone": "both",
+      "explanation": "Fits both categories."
+    },
+    {
+      "id": "9",
+      "text": "Grass",
+      "zone": "outside",
+      "explanation": "Fits neither category."
+    },
+    {
+      "id": "10",
+      "text": "Fire Truck",
+      "zone": "outside",
+      "explanation": "Fits neither category."
+    }
+  ],
+  "distribution": {
+    "left": 3,
+    "right": 2,
+    "both": 3,
+    "outside": 2
+  },
+  "metadata": {
+    "generatedBy": "AI",
+    "validated": true
+  }
+}

@@ -1,10 +1,18 @@
 import { useState, useEffect, useCallback } from 'react';
+import { Zone } from '../types/game';
 
 export interface PuzzleStats {
   completed: boolean;
   attempts: number;
   completedAt?: string;
   firstAttemptedAt?: string;
+  // Locked state when puzzle was completed
+  lockedState?: {
+    itemPlacements: Record<string, Zone>;
+    zoneOrder: Record<Zone, string[]>;
+    lockedItems: string[];
+    revealedRules: { left: boolean; right: boolean };
+  };
 }
 
 export interface GameStats {
@@ -110,7 +118,18 @@ export function useStats() {
     });
   }, []);
 
-  const recordPuzzleCompletion = useCallback((attemptsUsed: number, itemsLocked: number, itemsPlaced: number, puzzleId?: string) => {
+  const recordPuzzleCompletion = useCallback((
+    attemptsUsed: number, 
+    itemsLocked: number, 
+    itemsPlaced: number, 
+    puzzleId?: string,
+    lockedState?: {
+      itemPlacements: Map<string, Zone>;
+      zoneOrder: Map<Zone, string[]>;
+      lockedItems: Set<string>;
+      revealedRules: { left: boolean; right: boolean };
+    }
+  ) => {
     setStats(prev => {
       const today = new Date().toDateString();
       const isNewDay = prev.lastPlayedDate !== today;
@@ -123,11 +142,26 @@ export function useStats() {
           attempts: 0,
           firstAttemptedAt: new Date().toISOString(),
         };
+        
+        // Prevent duplicate completion
+        if (puzzleStat.completed) {
+          return prev; // Already completed, don't record again
+        }
+        
+        // Convert Maps and Sets to plain objects for storage
+        const storedState = lockedState ? {
+          itemPlacements: Object.fromEntries(lockedState.itemPlacements),
+          zoneOrder: Object.fromEntries(lockedState.zoneOrder),
+          lockedItems: Array.from(lockedState.lockedItems),
+          revealedRules: lockedState.revealedRules,
+        } : undefined;
+        
         puzzles[puzzleId] = {
           ...puzzleStat,
           completed: true,
           attempts: puzzleStat.attempts + attemptsUsed,
           completedAt: new Date().toISOString(),
+          lockedState: storedState,
         };
       }
       
@@ -199,7 +233,31 @@ export function useStats() {
     const reset = { ...defaultStats };
     saveStats(reset);
     setStats(reset);
+    // Clear all localStorage data related to the app
+    // This ensures a complete reset of all user data, including first-time user flag
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+      // Clear any other potential storage keys (including first-time user flag)
+      const keysToRemove: string[] = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('vennstack_')) {
+          keysToRemove.push(key);
+        }
+      }
+      keysToRemove.forEach(key => localStorage.removeItem(key));
+    } catch (error) {
+      console.error('Error clearing localStorage:', error);
+    }
   }, []);
+
+  const isPuzzleCompleted = useCallback((puzzleId: string): boolean => {
+    return stats.puzzles[puzzleId]?.completed === true;
+  }, [stats.puzzles]);
+
+  const getPuzzleLockedState = useCallback((puzzleId: string) => {
+    return stats.puzzles[puzzleId]?.lockedState;
+  }, [stats.puzzles]);
 
   return {
     stats,
@@ -207,6 +265,8 @@ export function useStats() {
     recordPuzzleCompletion,
     recordAttempt,
     resetStats,
+    isPuzzleCompleted,
+    getPuzzleLockedState,
   };
 }
 

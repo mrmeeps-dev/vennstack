@@ -1,0 +1,87 @@
+{
+  "id": "2025-12-03",
+  "date": {
+    "year": 2025,
+    "month": 12,
+    "day": 3,
+    "dayOfWeek": 3
+  },
+  "difficulty": 2,
+  "difficultyLabel": "Medium",
+  "rules": {
+    "left": "Mammals",
+    "right": "Aquatic Animals"
+  },
+  "items": [
+    {
+      "id": "1",
+      "text": "Dog",
+      "zone": "left",
+      "explanation": "Fits Category A only."
+    },
+    {
+      "id": "2",
+      "text": "Lion",
+      "zone": "left",
+      "explanation": "Fits Category A only."
+    },
+    {
+      "id": "3",
+      "text": "Elephant",
+      "zone": "left",
+      "explanation": "Fits Category A only."
+    },
+    {
+      "id": "4",
+      "text": "Shark",
+      "zone": "right",
+      "explanation": "Fits Category B only."
+    },
+    {
+      "id": "5",
+      "text": "Goldfish",
+      "zone": "right",
+      "explanation": "Fits Category B only."
+    },
+    {
+      "id": "6",
+      "text": "Whale",
+      "zone": "both",
+      "explanation": "Fits both categories."
+    },
+    {
+      "id": "7",
+      "text": "Dolphin",
+      "zone": "both",
+      "explanation": "Fits both categories."
+    },
+    {
+      "id": "8",
+      "text": "Otter",
+      "zone": "both",
+      "explanation": "Fits both categories."
+    },
+    {
+      "id": "9",
+      "text": "Eagle",
+      "zone": "outside",
+      "explanation": "Fits neither category."
+    },
+    {
+      "id": "10",
+      "text": "Lizard",
+      "zone": "outside",
+      "explanation": "Fits neither category."
+    }
+  ],
+  "distribution": {
+    "left": 3,
+    "right": 2,
+    "both": 3,
+    "outside": 2
+  },
+  "metadata": {
+    "generatedBy": "AI",
+    "validated": true
+  }
+}

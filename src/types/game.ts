@@ -10,6 +10,14 @@ export interface Item {
 
 export interface PuzzleData {
   id: string;
+  date?: {
+    year: number;
+    month: number;
+    day: number;
+    dayOfWeek: number;
+  };
+  difficulty?: number;
+  difficultyLabel?: string;
   rules: {
     left: string;
     right: string;
@@ -17,26 +25,23 @@ export interface PuzzleData {
   items: Item[];
 }
 
-export type GamePhase = "investigation" | "hypothesis" | "validation" | "discovery";
-
 export interface GameState {
   puzzle: PuzzleData;
   lockedItems: Set<string>;
-  itemPlacements: Map<string, Zone>; // Track where each item is currently placed
-  zoneOrder: Map<Zone, string[]>; // Track the order of items in each zone
+  itemPlacements: Map<string, Zone>;
+  zoneOrder: Map<Zone, string[]>;
   revealedRules: {
     left: boolean;
     right: boolean;
   };
-  phase: GamePhase;
 }
 
 export interface GameActions {
   placeItem: (itemId: string, targetZone: Zone, insertAfterId?: string | null) => void;
   removeItem: (itemId: string) => void;
-  reorderItemsInZone: (zone: Zone, activeId: string, overId: string) => void;
   validatePuzzle: () => { correct: string[]; incorrect: string[] };
-  checkRuleDiscovery: () => void;
   autoPlaceAllItems: () => void;
+  handleDrop: (event: any, mousePosition?: { x: number; y: number } | null) => void;
+  revealOneHint?: () => string | null;
 }
 

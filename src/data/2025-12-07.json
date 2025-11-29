@@ -1,0 +1,87 @@
+{
+  "id": "2025-12-07",
+  "date": {
+    "year": 2025,
+    "month": 12,
+    "day": 7,
+    "dayOfWeek": 0
+  },
+  "difficulty": 4,
+  "difficultyLabel": "Grandmaster",
+  "rules": {
+    "left": "Words containing 'EAR'",
+    "right": "Body Parts"
+  },
+  "items": [
+    {
+      "id": "1",
+      "text": "Pearl",
+      "zone": "left",
+      "explanation": "Fits Category A only."
+    },
+    {
+      "id": "2",
+      "text": "Fear",
+      "zone": "left",
+      "explanation": "Fits Category A only."
+    },
+    {
+      "id": "3",
+      "text": "Earth",
+      "zone": "left",
+      "explanation": "Fits Category A only."
+    },
+    {
+      "id": "4",
+      "text": "Nose",
+      "zone": "right",
+      "explanation": "Fits Category B only."
+    },
+    {
+      "id": "5",
+      "text": "Leg",
+      "zone": "right",
+      "explanation": "Fits Category B only."
+    },
+    {
+      "id": "6",
+      "text": "Heart",
+      "zone": "both",
+      "explanation": "Fits both categories."
+    },
+    {
+      "id": "7",
+      "text": "Ear",
+      "zone": "both",
+      "explanation": "Fits both categories."
+    },
+    {
+      "id": "8",
+      "text": "Beard",
+      "zone": "both",
+      "explanation": "Fits both categories."
+    },
+    {
+      "id": "9",
+      "text": "Eye",
+      "zone": "outside",
+      "explanation": "Fits neither category."
+    },
+    {
+      "id": "10",
+      "text": "Hand",
+      "zone": "outside",
+      "explanation": "Fits neither category."
+    }
+  ],
+  "distribution": {
+    "left": 3,
+    "right": 2,
+    "both": 3,
+    "outside": 2
+  },
+  "metadata": {
+    "generatedBy": "AI",
+    "validated": true
+  }
+}

@@ -1,0 +1,109 @@
+/* CRITICAL: NO position/transform transitions */
+.card {
+  /* Only animate colors, opacity, and shadows - NOT position/transform */
+  transition: background-color 300ms cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 300ms cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 250ms ease-out;
+  /* Improve mobile drag stability by preventing browser gestures (scroll, zoom) on cards */
+  touch-action: none;
+}
+
+@keyframes celebrate-pulse {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+  20% {
+    transform: translateY(-4px) scale(1.03);
+  }
+  40% {
+    transform: translateY(0) scale(1);
+  }
+  60% {
+    transform: translateY(-3px) scale(1.02);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+
+.card.celebrate-pulse {
+  animation: celebrate-pulse 700ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+/* Drop-in entrance animation - plays automatically on mount
+ * CRITICAL FIX: This animation runs on mount, NOT via a CSS class toggle
+ * The key-changing strategy in React forces remount, triggering this animation
+ */
+@keyframes drop-in {
+  from { 
+    transform: scale(0.97);
+    opacity: 0.7;
+  }
+  to { 
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Applied to cards when the game is ready (prevents initial page load animation) */
+body.game-ready .card {
+  animation: drop-in 350ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Lock success animation */
+@keyframes lock-pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+.card.just-locked {
+  animation: lock-pop 450ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+/* Solution reveal float animation
+ * Used when we reveal the correct order after a loss so that previously-wrong
+ * (red) tiles visibly move into their correct positions instead of teleporting.
+ */
+@keyframes solution-float-in {
+  0% {
+    transform: translateY(-8px) scale(0.98);
+    opacity: 0;
+  }
+  60% {
+    transform: translateY(2px) scale(1.02);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.card.solution-float {
+  animation: solution-float-in 420ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+/* Error shake */
+@keyframes error-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-10px); }
+  50% { transform: translateX(10px); }
+  75% { transform: translateX(-10px); }
+}
+
+.card.incorrect {
+  animation: error-shake 500ms ease-in-out !important;
+}
+
+/* Zone hover */
+.zone {
+  transition: box-shadow 150ms ease-out;
+}
+
+.zone.is-drag-over {
+  box-shadow: inset 0 0 0 2px rgba(59, 130, 246, 0.5);
+}
+
+

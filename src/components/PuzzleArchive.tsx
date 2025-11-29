@@ -267,10 +267,6 @@ export function PuzzleArchive({
                     flex items-center justify-center relative
                   `}
                 >
-                  {/* Visual indicator for today */}
-                  {isToday && (
-                    <div className="absolute top-1 right-1 w-2 h-2 rounded-full bg-blue-500" title="Today" />
-                  )}
                   <div className="flex flex-col items-center justify-center gap-0.5">
                     <span
                       className={`text-sm font-medium ${
@@ -309,9 +305,7 @@ export function PuzzleArchive({
         <div className="pt-4 border-t border-zinc-200">
           <div className="flex items-center justify-center gap-4 text-xs text-zinc-600 flex-wrap">
             <div className="flex items-center gap-1.5">
-              <div className="w-4 h-4 rounded border-2 border-blue-500 bg-blue-50 ring-1 ring-blue-200 relative">
-                <div className="absolute top-0.5 right-0.5 w-1.5 h-1.5 rounded-full bg-blue-500" />
-              </div>
+              <div className="w-4 h-4 rounded border-2 border-blue-500 bg-blue-50 ring-1 ring-blue-200" />
               <span>Today</span>
             </div>
             <div className="flex items-center gap-1.5">

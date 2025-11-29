@@ -1,0 +1,95 @@
+{
+  "id": "2025-01-15",
+  "date": {
+    "year": 2025,
+    "month": 1,
+    "day": 15,
+    "dayOfWeek": 3
+  },
+  "difficulty": 2,
+  "difficultyLabel": "Medium",
+  "rules": {
+    "left": "European Countries",
+    "right": "Things that are Red"
+  },
+  "items": [
+    {
+      "id": "1",
+      "text": "France",
+      "zone": "left",
+      "explanation": "European country, not typically red."
+    },
+    {
+      "id": "2",
+      "text": "Germany",
+      "zone": "left",
+      "explanation": "European country, not typically red."
+    },
+    {
+      "id": "3",
+      "text": "Apple",
+      "zone": "right",
+      "explanation": "Red fruit, not a European country."
+    },
+    {
+      "id": "4",
+      "text": "Cherry",
+      "zone": "right",
+      "explanation": "Red fruit, not a European country."
+    },
+    {
+      "id": "5",
+      "text": "Spain",
+      "zone": "both",
+      "explanation": "European country with red in its flag."
+    },
+    {
+      "id": "6",
+      "text": "Italy",
+      "zone": "both",
+      "explanation": "European country with red in its flag."
+    },
+    {
+      "id": "7",
+      "text": "Brazil",
+      "zone": "outside",
+      "explanation": "Not a European country (South America) and not typically red."
+    },
+    {
+      "id": "8",
+      "text": "Cat",
+      "zone": "outside",
+      "explanation": "Not a European country and not typically red."
+    },
+    {
+      "id": "9",
+      "text": "Greece",
+      "zone": "left",
+      "explanation": "European country, not typically red."
+    },
+    {
+      "id": "10",
+      "text": "Strawberry",
+      "zone": "right",
+      "explanation": "Red fruit, not a European country."
+    }
+  ],
+  "distribution": {
+    "left": 3,
+    "right": 3,
+    "both": 2,
+    "outside": 2
+  },
+  "metadata": {
+    "generatedBy": "AI",
+    "validated": true,
+    "validationChecks": {
+      "uniqueness": true,
+      "obscurity": true,
+      "spelling": true,
+      "homonymCheck": true,
+      "compatibility": true
+    }
+  }
+}
+

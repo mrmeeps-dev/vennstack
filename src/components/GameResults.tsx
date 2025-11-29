@@ -138,7 +138,7 @@ export function GameResults({
               <div
                 className={`px-4 sm:px-6 py-4 sm:py-5 border-b flex-shrink-0 ${
                   isWin
-                    ? 'bg-gradient-to-r from-[#86EFAC] to-[#06B6D4]'
+                      ? 'bg-[#B2EBF2]'
                     : 'bg-gradient-to-r from-orange-400 to-slate-500'
                 }`}
               >
@@ -151,9 +151,9 @@ export function GameResults({
                       className="flex-shrink-0"
                     >
                       {isWin ? (
-                        <Trophy className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+                        <Trophy className={`w-6 h-6 sm:w-8 sm:h-8 ${isWin ? 'text-slate-800' : 'text-white'}`} />
                       ) : (
-                        <AlertCircle className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+                        <AlertCircle className={`w-6 h-6 sm:w-8 sm:h-8 ${isWin ? 'text-slate-800' : 'text-white'}`} />
                       )}
                     </motion.div>
                     <div className="min-w-0 flex-1">
@@ -161,7 +161,7 @@ export function GameResults({
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.4 }}
-                        className="text-xl sm:text-2xl font-bold text-white truncate"
+                        className={`text-xl sm:text-2xl font-bold truncate ${isWin ? 'text-slate-800' : 'text-white'}`}
                       >
                         {isWin ? 'Puzzle Solved!' : 'Not Quite...'}
                       </motion.h2>
@@ -169,7 +169,7 @@ export function GameResults({
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.5 }}
-                        className="text-white/90 text-xs sm:text-sm mt-0.5"
+                        className={`text-xs sm:text-sm mt-0.5 ${isWin ? 'text-slate-700' : 'text-white/90'}`}
                       >
                         Here is the correct classification.
                       </motion.p>
@@ -442,13 +442,13 @@ export function GameResults({
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 1.1 }}
                   onClick={onBackToMenu}
-                  className={`w-full sm:flex-1 px-4 py-2.5 rounded-lg font-semibold text-white transition-colors ${
+                  className={`w-full sm:flex-1 px-4 py-2.5 rounded-lg font-semibold transition-colors ${
                     isWin
-                      ? 'bg-[#06B6D4] hover:bg-[#0891B2]'
-                      : 'bg-slate-600 hover:bg-slate-700'
+                      ? 'bg-[#B2EBF2] hover:bg-[#80DEEA] text-slate-800'
+                      : 'bg-slate-600 hover:bg-slate-700 text-white'
                   }`}
                 >
-                  {isWin ? 'Play Again' : 'Back to Menu'}
+                  {isWin ? 'Back to Menu' : 'Back to Menu'}
                 </motion.button>
               </div>
             </div>
